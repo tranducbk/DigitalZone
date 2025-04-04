@@ -267,6 +267,11 @@
     }
 }
 
+.total-selected-items{
+    display: flex;
+    justify-content: space-between;
+}
+
 .product-actions {
     display: flex;
     justify-content: space-between; /* Căn giữa các phần tử nếu cần */

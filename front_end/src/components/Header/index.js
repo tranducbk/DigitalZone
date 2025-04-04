@@ -120,9 +120,6 @@ function Header() {
                             </div>
                             </Link>
                         </div>
-                        <span className="title-y">
-                            <Link to='/profile'>{user}</Link>
-                        </span>
                         <div className="notification-icon" style={{ backgroundColor: '0065b3' }}>
                             <Tippy
                             interactive={true}

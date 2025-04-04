@@ -140,7 +140,7 @@ function Category(props) {
     // Lọc theo phạm vi giá nếu có
     if (activeFilter && activeFilter.type === 'price' && activeFilter.min !== undefined && activeFilter.max !== undefined) {
       filteredProducts = filteredProducts.filter((product) => {
-        const discountedPrice = product.price * (1 - product.sale / 100);
+        const discountedPrice = product.price * (1 - product.variants[0].sale / 100);
         return discountedPrice >= activeFilter.min && discountedPrice <= activeFilter.max;
       });
     }

@@ -89,6 +89,8 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.2s ease;
+    flex-direction: column;
+    width: 45vw;
 }
 
 .checkout-item:hover {

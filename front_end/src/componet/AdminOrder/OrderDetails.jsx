@@ -275,7 +275,7 @@ const OrderDetails = ({ order, handleRefresh }) => {
             </Dropdown>
           </Col>
         </Row>
-        <Row gutter={[16, 16]} style={{ marginTop: 20, marginBottom: 20 }}>
+        <Row gutter={[16, 16]} style={{ margin: "auto"}}>
           <Col span={6} style={{ fontSize: 16, fontWeight: "bold" }}>
             Trạng thái:
           </Col>

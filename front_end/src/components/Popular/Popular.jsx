@@ -65,7 +65,7 @@ function Popular({ category }) {
       let containerWidth;
       
       if (window.innerWidth > 1200) {
-        setOffset(index * 234.8);
+        setOffset(index * 220);
         setMaxIndex((data_product.length - 5));
       } 
       else if (window.innerWidth > 990) {
@@ -129,7 +129,7 @@ function Popular({ category }) {
                   className="swiper-wrapper"
                   style={{ 
                     transform: `translateX(${offset}px)`,
-                    transitionDuration: '100ms'
+                    transitionDuration: '300ms'
                   }}
                 >
                   {data_product.map((item, index) => {

@@ -11,7 +11,7 @@ import AllApi from '../../api/api';
 const CommentAndRating = ({ product, onOpenPopup }) => {
   const [content, setContent] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const commentsPerPage = 5;
+  const commentsPerPage = 3;
   const [comments, setComments] = useState([]);
   const [rating, setRating] = useState(1);
   const userId = localStorage.getItem("userID");
@@ -118,7 +118,6 @@ useEffect(() => {
             <ProductRating rating={product.rating} />
             <p> / {product.star1 + product.star2 + product.star3 + product.star4 + product.star5} đánh giá </p>
           </div>
-          <p>(Vui lòng đăng nhập vào tài khoản đã mua hàng để đánh giá sản phẩm)</p>
         </div>
         <form className="product-rating-box" onSubmit={handleSubmit}>
           <div className="comment-part">
@@ -164,14 +163,16 @@ useEffect(() => {
                   <img className="avt-yin" src={no_avt} alt="Avatar" />
                 </div>
                 <div className="info-comment">
-                  <strong className="user-name">{"Ẩn danh"}</strong>
-                  <span>
-                    (
-                    {comment.createdAt
-                      ? new Date(comment.createdAt).toLocaleDateString()
-                      : "Không xác định"}
-                    )
-                  </span>
+                  <div>
+                    <strong className="user-name">{"Ẩn danh   "}</strong>
+                    <span>
+                      (
+                      {comment.createdAt
+                        ? new Date(comment.createdAt).toLocaleDateString()
+                        : "Không xác định"}
+                      )
+                    </span>
+                  </div>
                   <ProductRating rating={comment.rating || 0} />
                   <div className="review-item">
                     {typeof comment.text === "string"
@@ -182,7 +183,6 @@ useEffect(() => {
               </div>
             ))}
           </div>
-          <p className="p-comment">Xem bình luận trang số</p>
           <div className="pagination">
             {pageNumbers.map((number) => (
               <button

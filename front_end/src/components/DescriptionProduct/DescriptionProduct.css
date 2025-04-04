@@ -58,10 +58,8 @@
   .product-description {
     display: flex;
     flex-direction: column;
-    gap: 25px;
-    padding: 48px;
-    padding-bottom: 70px;
-    height: 300px;
+    padding: 10px 30px;
+    height: auto;
     border: 1px solid #a7a9ac;
     border-radius: 20px;
   }

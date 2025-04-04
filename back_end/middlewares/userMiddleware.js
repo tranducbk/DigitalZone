@@ -12,6 +12,7 @@ const authMiddleware = async (req, res, next) => {
         if (err) {
             return res.status(401).json({ message: 'Token không hợp lệ!' });
         }
+
         req.user = decoded; // Gắn thông tin đã giải mã vào request
         next(); // Chuyển tiếp yêu cầu tới controller
     });

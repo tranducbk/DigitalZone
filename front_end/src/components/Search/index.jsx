@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { Spin } from 'antd';
 import "./Search.css";
 import HeadlessTippy from "@tippyjs/react/headless";
 import ItemSearch from "../ItemSearch/ItemSearch";
@@ -89,25 +90,28 @@ function Search() {
 
     return (
         <div>
+            {showResult && <div className="overlay" onClick={handleHideResult}></div>}
             <HeadlessTippy
                 interactive
                 placement="bottom"
-                visible={showResult && searchResult.length > 0}
+                visible={showResult}
                 render={(attrs) => (
                     <div className="search-results" tabIndex="-1" {...attrs}>
                         <div>
                             {loading ? (
-                                <div>Loading...</div>
+                                <Spin style={{ height: "400px", width: "320px"}} />
+                            ) : searchResult.length === 0 ? (
+                                <ItemSearch noResult={true} />
                             ) : (
                                 searchResult.map((item, index) => (
-                                    <div key={index} className="">
+                                    <div key={index} className="" onClick={handleClear}>
                                         <ItemSearch
-                                            key={index}
                                             id={item._id}
                                             name={item.name}
                                             image={item.variants[0].image}
                                             sale={item.variants[0].sale}
                                             price={item.price}
+                                            noResult={false}
                                         />
                                     </div>
                                 ))
@@ -136,6 +140,7 @@ function Search() {
                             className="button-y"
                             type="submit"
                             onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => inputRef.current.focus()}
                         >
                             <FontAwesomeIcon icon={faMagnifyingGlass} height={40} />
                         </button>

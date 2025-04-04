@@ -48,13 +48,8 @@ export default function LoginPage() {
 
         try {
             const response = await apiService.loginUser(user)
-              
-            // console.log(user.phoneNumber);
-            // console.log(user.password);
-            console.log(response.data.success);
-            console.log(response.data);
-            
-            login(response.data.user, response.data.token);
+                        
+            login(response.data.role, response.data.token);
             
             if (response.data.success) {
                 if (response.data.role === "admin") {

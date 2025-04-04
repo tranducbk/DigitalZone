@@ -42,6 +42,7 @@ function ProductDisplay(props) {
             try {
                 const response = await apiInstance.addProductToCart( product._id, selectedVariantColor, quantity);
                 if (response.data.message === "Product added to cart") {
+                    alert("Thêm sản phẩm vào giỏ hàng thành công!");
                 } else {
                     alert("Không thể thêm sản phẩm vào giỏ hàng, vui lòng thử lại.");
                 }

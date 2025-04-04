@@ -189,3 +189,8 @@
   transform: scale(1.1); /* Phóng to khi hover */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Thêm bóng đổ khi hover */
 }
+
+
+.home .cover-item {
+  right: -95px !important;
+}

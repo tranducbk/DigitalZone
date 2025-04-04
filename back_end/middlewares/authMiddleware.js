@@ -14,7 +14,7 @@ const protect = async (req, res, next) => {
 
             // Giải mã token và lấy userId
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+            
             req.userId = decoded.id;
             
             next(); // Nếu thành công, tiếp tục với request

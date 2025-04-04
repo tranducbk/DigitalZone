@@ -100,7 +100,8 @@ export default function CartPage() {
             )
         );
     };
- 
+    
+    // Xóa toàn bộ sản phẩm khỏi giỏ hàng
     const handleRemoveAll = async () => {
         try {
             await apiInstance.clearCart();
@@ -226,15 +227,15 @@ export default function CartPage() {
                                         <button className="delete-product" onClick={() => handleRemoveItem(item.productId, item.variant.color)}>
                                             Xóa <MdDelete style={{ fontSize: '24px' }} />
                                         </button>
-                                        <div style={{ fontSize: '20px', background: 'rgb(50, 132, 194)', color: "rgb(255, 255, 3)" }} className="delete-product">Đơn giá: {formatPrice(calculateTotalPrice(item))}</div>
+                                        <div style={{ fontSize: '20px', background: "rgb(220, 212, 212)", color: "rgb(255, 0, 0)" }} className="delete-product">Đơn giá: {formatPrice(calculateTotalPrice(item))}</div>
                                     </div>
                                 </div>
                             </div>
                         ))}
  
                         <div className="total-selected-items">
-                            <h3>Tổng tiền thanh toán: </h3>
-                            <p style={{ fontSize: '24px', color: 'green', marginTop: "10px" }}>
+                            <h3 style= {{ margin: 'auto 0px auto 55vw' }} >Tổng tiền thanh toán: </h3>
+                            <p style={{ fontSize: '24px', color: 'red', margin: 'auto', fontWeight: "700" }}>
                                 {formatPrice(totalAmount)}
                             </p>
                         </div>
@@ -260,7 +261,7 @@ export default function CartPage() {
                                         </button>
  
                                         <TiArrowBack
-                                            style={{ fontSize: '25px', cursor: 'pointer', transition: 'transform 0.3s ease' }}
+                                            style={{ fontSize: '25px', cursor: 'pointer', transition: 'transform 0.3s ease', margin: 'auto' }}
                                             type="button"
                                             className="btn-back"
                                             onClick={() => setIsPaymentOptionsVisible(false)}

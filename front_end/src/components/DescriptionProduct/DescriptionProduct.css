@@ -26,8 +26,10 @@
 /* Hiệu ứng hover */
 .product-nav-box:hover {
   background-color: #e8f5e9; /* Màu nền khi hover */
-  color: #4caf50; /* Màu chữ nổi bật khi hover */
-  transform: translateY(-2px); /* Hiệu ứng nâng lên nhẹ */
+  color: #000000; /* Màu chữ nổi bật khi hover */
+  transform: translateY(-1px); /* Hiệu ứng nâng lên nhẹ */
+  transition: transform 0.2s ease; /* Hiệu ứng mượt mà khi hover */
+  background-color: #e3e3e3;
 }
 
   .product-nav {
@@ -50,7 +52,7 @@
   }
   
   .product-nav-box.fade {
-    background-color: var(--color4);
+    background-color: #515451;
     flex: 1.5;
   }
 
@@ -93,9 +95,9 @@
   }
   
   .product-nav-box.active {
-    background-color: #4caf50; /* Màu nền nổi bật */
+    background-color: #6a786b; /* Màu nền nổi bật */
     color: white; /* Màu chữ nổi bật */
     font-weight: bold; /* Chữ đậm */
-    border: 1px solid #388e3c; /* Viền nổi bật */
+    border: 1px solid #000000; /* Viền nổi bật */
   }
   

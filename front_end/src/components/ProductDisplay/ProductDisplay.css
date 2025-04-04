@@ -512,12 +512,12 @@ h1{
 
 /* Định nghĩa màu sắc cụ thể */
 :root {
-    --main-color1: #4CAF50; /* Xanh lá cây tươi */
-    --main-color2: #45a049; /* Xanh lá đậm hơn */
-    --color7: #388E3C; /* Xanh lá cây đậm */
+    --main-color1: #af4c4c; /* Xanh lá cây tươi */
+    --main-color2: #a04545; /* Xanh lá đậm hơn */
+    --color7: #ff0000; /* Xanh lá cây đậm */
     --bg-color: #f1f1f1; /* Màu nền sáng */
     --text-color: #333; /* Màu chữ tối */
-    --main-color3: #2e7d32; /* Xanh lá cây tối */
+    --main-color3: #7d2e2e; /* Xanh lá cây tối */
 }
 
 /* Nút cộng và trừ số lượng */

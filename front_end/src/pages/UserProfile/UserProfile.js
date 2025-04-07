@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './UserProfile.css';
 import apiService from '../../api/api';
 import { Modal, Input, Button } from 'antd';
+import SelectedAddress from '../../components/CustomSelected/selectedAddress'; // Import SelectedAddress
+import addressData from '../RegisterAccount/address-data.json'
 
 const UserProfile = () => {
     const [user, setUser] = useState(null);
@@ -11,11 +13,17 @@ const UserProfile = () => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [error, setError] = useState('');
+    const [address, setAddress] = useState({});
     const [isCurrentPasswordConfirmed, setIsCurrentPasswordConfirmed] = useState(false);
     const [updatedUser, setUpdatedUser] = useState({
         userName: '',
         phoneNumber: '',
-        diaChi: ''
+        diaChi: {
+            city: '',
+            district: '',
+            ward: '',
+            addressDetails: ''
+        }
     });
 
     useEffect(() => {
@@ -32,7 +40,7 @@ const UserProfile = () => {
                     setUpdatedUser({
                         userName: response.data.user.userName,
                         phoneNumber: response.data.user.phoneNumber,
-                        diaChi: response.data.user.diaChi
+                        diaChi: response.data.user.diaChi,
                     });
                 }
             } catch (error) {
@@ -45,11 +53,12 @@ const UserProfile = () => {
         fetchUserInfo();
     }, []);
 
+    // console.log(showEditProfile);
+    
+
     const handleConfirmCurrentPassword = async () => {
         try {
             const phoneNumber = localStorage.getItem("phoneNumber");
-            console.log(phoneNumber)
-            
             const response = await apiService.loginUser({
                 phoneNumber: phoneNumber,
                 password: currentPassword
@@ -68,21 +77,20 @@ const UserProfile = () => {
     const handleChangePassword = async () => {
         try {
             await apiService.changePassword(currentPassword, newPassword);
-            
             setShowChangePassword(false);
             setIsCurrentPasswordConfirmed(false);
             setCurrentPassword('');
             setNewPassword('');
         } catch (error) {
-            console.error('Error changing password:', error.response ? error.response.data.message : error.message);
             setError('Đổi mật khẩu thất bại');
         }
     };
-    
 
     const handleUpdateProfile = async () => {
         try {
-            await apiService.updateUserProfile(user.id, updatedUser);
+            console.log(updatedUser);
+            // console.log(user._id);
+            await apiService.updateUserProfile(user._id, updatedUser);
             setUser({ ...user, ...updatedUser });
             setShowEditProfile(false);
         } catch (error) {
@@ -91,11 +99,11 @@ const UserProfile = () => {
     };
 
     if (isLoading) {
-        return <div style={{ paddingTop: "200px", marginLeft: "600px", marginBottom: "200px", fontSize: "25px" }}>Loading...</div>;
+        return <div>Loading...</div>;
     }
 
     if (!user) {
-        return <div style={{ paddingTop: "200px", marginLeft: "600px", marginBottom: "200px", fontSize: "25px" }}>Bạn chưa đăng nhập!</div>;
+        return <div>Bạn chưa đăng nhập!</div>;
     }
 
     return (
@@ -103,48 +111,43 @@ const UserProfile = () => {
             <div className="user-profile-title">
                 <h1>Thông tin người dùng</h1>
             </div>
-
             <div className="user-profile">
                 <p><strong>Tên người dùng: </strong> {user.userName}</p>
                 <p><strong>Số điện thoại: </strong> {user.phoneNumber}</p>
-                <p><strong>Địa chỉ: </strong>{user.diaChi}</p>
-
+                <p><strong>Địa chỉ: </strong>{user.diaChi ? `${user.diaChi.ward}, ${user.diaChi.district}, ${user.diaChi.city}` : 'Chưa cập nhật'}</p>
                 <div className="user-profile-buttons">
                     <Button type="primary" onClick={() => setShowEditProfile(true)}>Chỉnh sửa thông tin</Button>
                     <Button type="default" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</Button>
                 </div>
             </div>
 
-            {/* Edit Profile Modal */}
             <Modal
                 title="Chỉnh sửa thông tin"
                 visible={showEditProfile}
                 onCancel={() => setShowEditProfile(false)}
                 footer={null}
             >
+                <label htmlFor="userName">Tên người dùng</label>
                 <Input
                     value={updatedUser.userName}
                     onChange={(e) => setUpdatedUser({ ...updatedUser, userName: e.target.value })}
                     placeholder="Tên người dùng"
-                    style={{ marginBottom: '10px' }}
+                    showChangePassword={showChangePassword}
                 />
+                <label htmlFor="phoneNumber">Số điện thoại</label>
                 <Input
                     value={updatedUser.phoneNumber}
                     onChange={(e) => setUpdatedUser({ ...updatedUser, phoneNumber: e.target.value })}
                     placeholder="Số điện thoại"
-                    style={{ marginBottom: '10px' }}
                 />
-                <Input
-                    value={updatedUser.diaChi}
-                    onChange={(e) => setUpdatedUser({ ...updatedUser, diaChi: e.target.value })}
-                    placeholder="Địa chỉ"
-                    style={{ marginBottom: '10px' }}
+                <SelectedAddress
+                    address={updatedUser.diaChi}
+                    setAddress={(newAddress) => setUpdatedUser({ ...updatedUser, diaChi: newAddress })}
+                    addressData={addressData}
                 />
-                <Button type="primary saved" onClick={handleUpdateProfile} style={{ marginRight: '10px' }}>Lưu thay đổi</Button>
-                <Button className='nosaved' onClick={() => setShowEditProfile(false)}>Hủy</Button>
+                <Button type="primary" onClick={handleUpdateProfile}>Lưu thay đổi</Button>
             </Modal>
 
-            {/* Change Password Modal */}
             <Modal
                 title="Đổi mật khẩu"
                 visible={showChangePassword}
@@ -157,10 +160,9 @@ const UserProfile = () => {
                             placeholder="Xác nhận mật khẩu cũ"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
-                            style={{ marginBottom: '10px' }}
                         />
-                        <Button type="primary saved" onClick={handleConfirmCurrentPassword} style={{ marginRight: '10px' }}>Xác nhận</Button>
-                        {error && <p className="error" style={{ color: 'red' }}>{error}</p>}
+                        <Button type="primary" onClick={handleConfirmCurrentPassword}>Xác nhận</Button>
+                        {error && <p>{error}</p>}
                     </>
                 ) : (
                     <>
@@ -168,9 +170,8 @@ const UserProfile = () => {
                             placeholder="Nhập mật khẩu mới"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            style={{ marginBottom: '10px' }}
                         />
-                        <Button type="primary" onClick={handleChangePassword} style={{ marginRight: '10px' }}>Xác nhận</Button>
+                        <Button type="primary" onClick={handleChangePassword}>Xác nhận</Button>
                     </>
                 )}
             </Modal>

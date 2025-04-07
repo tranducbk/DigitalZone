@@ -43,7 +43,7 @@ function Home() {
       {/* Hiển thị popup trong Home */}
       {isChatOpen && (
         <div className="chat-popup-container">
-          <ChatPopup onClose={handleClose}  userId={userId}/>
+          {/* <ChatPopup onClose={handleClose}  userId={userId}/> */}
         </div>
       )}
     </div>

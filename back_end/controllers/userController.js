@@ -24,35 +24,48 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { userName, diaChi, email } = req.body;
+        const { userName, email, diaChi } = req.body.userData;
+
+        // Kiểm tra dữ liệu địa chỉ
+        const { city, district, ward } = diaChi;
+        
 
         // Validate input data
-        const { error } = updateProfileSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({
-                success: false,
-                message: error.details.map(detail => detail.message).join(', ')
-            });
-        }
-
+        // const { error } = updateProfileSchema.validate(req.body);
+        // if (error) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: error.details.map(detail => detail.message).join(', ')
+        //     });
+        // }
+        
+        // Cập nhật thông tin người dùng
         const updatedUser = await User.findByIdAndUpdate(
             userId,
-            { userName, diaChi, email },
+            {
+                userName,
+                email,
+                diaChi: {
+                    city,
+                    district,
+                    ward
+                }
+            },
             { new: true } // Trả về đối tượng đã được cập nhật
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
         }
-
+        const savedUser = await updatedUser.save(); // Lưu lại thay đổi
         res.status(200).json({
             success: true,
-            message: 'Profile updated successfully',
-            user: updatedUser
+            message: 'Cập nhật thông tin thành công.',
+            user: savedUser
         });
     } catch (error) {
-        console.error('Error updating user profile:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        console.error('Lỗi khi cập nhật thông tin người dùng:', error);
+        res.status(500).json({ success: false, message: 'Lỗi máy chủ.' });
     }
 };
 
@@ -96,10 +109,10 @@ exports.changePassword = async (req, res) => {
 
 // Đăng ký người dùng
 exports.registerUser = async (req, res) => {
-    console.log('Received registration request:', req.body); // Log request body
-
+    // console.log('Received registration request:', req.body); // Log request body
     // Validate input data
     const { error } = registerSchema.validate(req.body);
+    console.log(error);
     if (error) {
         return res.status(400).json({ 
             success: false, 
@@ -114,7 +127,7 @@ exports.registerUser = async (req, res) => {
         const existingUser = await User.findOne({ phoneNumber });
         if (existingUser) {
             console.log('User with this phone number already exists');
-            return res.status(200).json({ // HTTP 409 Conflict
+            return res.status(200).json({
                 success: false, 
                 message: 'Người dùng đã tồn tại!'
             });

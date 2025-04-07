@@ -221,3 +221,12 @@ body {
 .modal-buttons .confirm:hover {
     background-color: #0056b3;
 }
+
+.select-container select{
+    width: auto;
+}
+
+.ant-modal .ant-modal-content{
+    width: fit-content;
+    right: 68px;
+}

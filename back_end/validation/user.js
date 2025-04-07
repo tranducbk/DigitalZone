@@ -1,5 +1,18 @@
 const Joi = require('joi');
-
+const addressSchema = Joi.object({
+    city: Joi.string().required().messages({
+        'string.empty': 'Tỉnh/Thành phố là bắt buộc',
+        'any.required': 'Tỉnh/Thành phố là bắt buộc'
+    }),
+    district: Joi.string().required().messages({
+        'string.empty': 'Quận/Huyện là bắt buộc',
+        'any.required': 'Quận/Huyện là bắt buộc'
+    }),
+    ward: Joi.string().required().messages({
+        'string.empty': 'Phường/Xã là bắt buộc',
+        'any.required': 'Phường/Xã là bắt buộc'
+    }),
+});
 const registerSchema = Joi.object({
     userName: Joi.string().required().messages({
         'string.empty': 'Tên người dùng là bắt buộc',
@@ -15,8 +28,7 @@ const registerSchema = Joi.object({
         'string.empty': 'Mật khẩu là bắt buộc', 
         'any.required': 'Mật khẩu là bắt buộc'
     }),
-    diaChi: Joi.string().required().messages({
-        'string.empty': 'Địa chỉ là bắt buộc',
+    diaChi: addressSchema.required().messages({
         'any.required': 'Địa chỉ là bắt buộc'
     }),
     email: Joi.string().email().optional(),
@@ -38,9 +50,10 @@ const loginSchema = Joi.object({
 });
 
 
+
 const updateProfileSchema = Joi.object({
     userName: Joi.string().min(3).max(30),
-    diaChi: Joi.string().max(100),
+    diaChi: addressSchema,
     email: Joi.string().email().max(50)
 });
 

@@ -84,19 +84,23 @@ export default function RegisterPage() {
         }
 
         setErrors(validationErrors);
-
         if (Object.keys(validationErrors).length === 0) {
-            const addressString = `${citisRef.current.options[citisRef.current.selectedIndex].text}, ${districtsRef.current.options[districtsRef.current.selectedIndex].text}, ${wardsRef.current.options[wardsRef.current.selectedIndex].text}`;
+
+            const addressString = `${wardsRef.current.options[wardsRef.current.selectedIndex].text}, ${districtsRef.current.options[districtsRef.current.selectedIndex].text}, ${citisRef.current.options[citisRef.current.selectedIndex].text}`;
             setDiaChi(addressString);
             const newUser = {
                 userName: username,
                 phoneNumber: phonenumber,
                 password: password,
-                diaChi: addressString,
+                diaChi: {
+                    city: citisRef.current.options[citisRef.current.selectedIndex].text,
+                    district: districtsRef.current.options[districtsRef.current.selectedIndex].text,
+                    ward: wardsRef.current.options[wardsRef.current.selectedIndex].text,
+                }
             };
 
             const savedUser = await addUser(newUser);
-
+            
             console.log('User saved successfully:', savedUser);
 
             if (savedUser) {

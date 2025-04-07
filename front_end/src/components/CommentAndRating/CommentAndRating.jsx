@@ -41,7 +41,7 @@ useEffect(() => {
   if (product?._id && !hasFetchedComments) {
     fetchComments();
   }
-}, [product._id, hasFetchedComments]);
+}, [product, hasFetchedComments]);
 
 
   // Cập nhật comments hiện tại khi trang hoặc bình luận thay đổi

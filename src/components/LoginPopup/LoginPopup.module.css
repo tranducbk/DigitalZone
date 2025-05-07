@@ -1,0 +1,62 @@
+.loginPopupContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3); 
+  z-index: 10000;
+}
+
+.loginPopup {
+  background-color: var(--bg-color); 
+  padding: 60px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.popupContent {
+  text-align: center;
+  width: 400px;
+}
+
+.popupContent p {
+  font-size: 26px;
+  padding: 10px;
+  color: var(--main-color2);
+}
+
+.popupContent img {
+  width: 140px;
+  height: auto;
+}
+
+.buttonClose {
+  width: 60px;
+  height: 60px;
+  margin-left: 350px;
+  margin-bottom: 30px;
+  border: none;
+}
+
+.popupBox {
+  display: flex;
+}
+
+.buttonPopup {
+  background-color: var(--main-color2);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  margin: 50px;
+}
+
+.buttonPopup:hover {
+  background-color: var(--main-color2);
+}

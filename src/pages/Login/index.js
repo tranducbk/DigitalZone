@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import apiService from "../../api/api";
 import { AuthContext } from "../../components/AuthContext/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import { IoLogoGoogle } from "react-icons/io5";
 
 
 export default function LoginPage() {
@@ -149,7 +150,7 @@ export default function LoginPage() {
 
                     <button className="button-submit" type="submit">Đăng nhập</button>
                 </form>
-                    <button className="button-submit button-google-submit" onClick={handleLoginGoogle} type="submit">Đăng nhập bằng Google</button>
+                    <button className="button-submit button-google-submit" onClick={handleLoginGoogle} type="submit"><div className="icon-gg"><IoLogoGoogle /></div>Đăng nhập bằng Google</button>
                 {errors.apiError && <div className="error">{errors.apiError}</div>} {/* Hiển thị lỗi từ API */}
             </div>
         </div>

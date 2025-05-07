@@ -27,7 +27,16 @@ const AdminUser = () => {
     
         const response = await apiService.getAllUsers();
         const usersData = response.data.users;
-        setUsers(usersData);
+        const updatedUsers = usersData.map((user) => {
+          return {
+            ...user,
+            diaChi: (user.diaChi.ward === "Phường/xã" ||
+            user.diaChi.district === "Quận/huyện" ||
+            user.diaChi.city === "Tỉnh/Thành phố") ? 'Chưa cập nhật' : `${user.diaChi.ward},  ${user.diaChi.district}, ${user.diaChi.city}`,
+          };
+        })
+        setUsers(updatedUsers);
+
       } catch (error) {
         console.error(error);
         message.error('Không thể lấy dữ liệu người dùng');
@@ -186,7 +195,7 @@ const AdminUser = () => {
       dataIndex: "userName",
       key: "userName",
       ellipsis: true,
-      width: '20%', // Chỉnh độ rộng của cột User name
+      width: '16%', // Chỉnh độ rộng của cột User name
       ...getColumnSearchProps('userName'),
     },
     {
@@ -194,7 +203,7 @@ const AdminUser = () => {
       dataIndex: "phoneNumber",
       key: "phoneNumber",
       ellipsis: true,
-      width: '20%', // Chỉnh độ rộng của cột Phone number
+      width: '10%', // Chỉnh độ rộng của cột Phone number
       ...getColumnSearchProps('phoneNumber'),
     },
     {
@@ -202,13 +211,13 @@ const AdminUser = () => {
       dataIndex: "diaChi",
       key: "diaChi",
       ellipsis: true,
-      width: '30%', // Chỉnh độ rộng của cột Địa chỉ
+      width: '40%', // Chỉnh độ rộng của cột Địa chỉ
       ...getColumnSearchProps('diaChi'),
     },
     {
       title: "Actions", // Cột này để chứa các hành động
       key: "actions",
-      width: '10%', // Chỉnh độ rộng của cột Actions
+      width: '6%', // Chỉnh độ rộng của cột Actions
       render: (_, record) => (
         <Button
           style={{ transform: "scale(1.5,1.5)" }}

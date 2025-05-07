@@ -125,5 +125,14 @@ input:focus {
 .button-google-submit {
     margin: 10px 100px !important;
     position: relative;
-    width: 18vw !important;
+    width: 20vw !important;
+}
+
+.icon-gg {
+    padding: 0px 10px;
+    display: inline-block;
+}
+
+.icon-gg svg {
+    font-size: 32px;
 }

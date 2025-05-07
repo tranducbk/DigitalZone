@@ -1,0 +1,64 @@
+.paymentPopupContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3); 
+  z-index: 10000;
+}
+
+.paymentPopup {
+  background-color: var(--bg-color); 
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.popupContent {
+  text-align: center;
+  height: 83vh;
+}
+
+.popupContent p {
+  font-size: 26px;
+  padding: 10px;
+  color: red;
+  font-weight: bold;
+}
+
+.popupContent img {
+  width: 23vw;
+  height: auto;
+  border-radius: 20px;
+}
+
+.buttonClose {
+  width: 40px;
+  height: 40px;
+  border: none;
+  margin-left: auto;
+  display: block;
+  border-radius: 50%;
+}
+
+.popupBox {
+  display: flex;
+  justify-content: center;
+}
+
+.buttonPopup {
+  background-color: #10b033;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.buttonPopup:hover {
+  background-color: #0f9a2d;
+}

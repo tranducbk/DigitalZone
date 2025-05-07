@@ -5,6 +5,7 @@ import addressData from './address-data.json';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./RegisterAccount.css";
+import { IoLogoGoogle } from "react-icons/io5";
 import apiService from "../../api/api";
 
 export default function RegisterPage() {
@@ -223,7 +224,7 @@ export default function RegisterPage() {
                     </div>
                     <button type="submit">Tạo tài khoản</button>
                 </form>
-                <button type="submit" className="button-google-submit" onClick={handleRegisterGoogle}>Đăng kí bằng Google</button>
+                <button type="submit" className="button-google-submit" onClick={handleRegisterGoogle}><div className="icon-gg"><IoLogoGoogle /></div>Đăng kí bằng Google</button>
                 {successMessage && <div className="success-message">{successMessage}</div>}
                 {errors.apiError && <div className="error">{errors.apiError}</div>} {/* Display API error */}
             </div>

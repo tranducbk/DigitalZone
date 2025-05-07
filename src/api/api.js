@@ -98,7 +98,7 @@ const apiService = {
 
   // **Admin Order Management**
   getAllOrders: () => apiInstance.get("/admin/order"),
-  updateOrderAdmin: (orderId, newStatus) =>
+  updateOrderAdmin: (orderId, newStatus, paymentStatus) =>
     apiInstance.put("/admin/order/update-status", { orderId, newStatus }),
 };
 

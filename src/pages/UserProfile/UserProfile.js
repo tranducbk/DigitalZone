@@ -131,8 +131,8 @@ const UserProfile = () => {
                 <p>
                     <strong>Địa chỉ: </strong>
                     {user.diaChi &&
-                    (user.diaChi.ward === "Phường/xã" &&
-                    user.diaChi.district === "Quận/huyện" &&
+                    (user.diaChi.ward === "Phường/xã" ||
+                    user.diaChi.district === "Quận/huyện" ||
                     user.diaChi.city === "Tỉnh/Thành phố")
                         ? "Hãy cập nhật địa chỉ"
                         : `${user.diaChi.ward}, ${user.diaChi.district}, ${user.diaChi.city}`}

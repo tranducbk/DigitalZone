@@ -98,9 +98,8 @@ h1 {
 }
 
 .checkout-item img {
-    width: 70%;
     height: auto;
-    margin-left: 10px;
+    margin: 0px 10px;
     border-bottom: 1px solid #e0e0e0;
 }
 
@@ -254,7 +253,6 @@ h1 {
 
 .order-status-card {
     flex-shrink: 0; /* Prevent status card from shrinking */
-    width: 150px;
     height: auto;
     display: flex;
     margin-top: 10px;
@@ -305,4 +303,35 @@ h1 {
     margin-top: 120px;
     margin-bottom: 80px;
     max-width: 500px; /* Giới hạn chiều rộng */
+}
+
+.product-item {
+    display: flex;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-image-checkout {
+    width: 13%; /* Chiều rộng hình ảnh */
+    height: auto; /* Tự động điều chỉnh chiều cao */
+    border-radius: 8px; /* Bo góc hình ảnh */
+    margin-bottom: 10px; /* Khoảng cách dưới hình ảnh */
+}
+
+.checkout-item-quantity {
+    display: flex    ;
+    align-items: center;
+    justify-content: space-between;
+    background-color: green;
+    color: #fff;
+    padding: 17px;
+    border-radius: 20px;
+    
+}
+
+.checkout-item-quantity h4 {
+    margin-bottom: 0px;
 }

@@ -129,7 +129,7 @@ h1{
 }
 
 .box-gallery .thumbnail-slide.swiper-container .swiper-wrapper .swiper-slide img {
-    height: 90%;
+    /* height: 100%; */
     object-fit: cover;
     filter: brightness(90%);
 }

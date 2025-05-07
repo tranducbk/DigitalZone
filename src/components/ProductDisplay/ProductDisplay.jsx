@@ -54,6 +54,23 @@ function ProductDisplay(props) {
             alert("Vui lòng chọn phân loại trước khi thêm vào giỏ hàng!");
         }
     };
+    const handleBuyNow = async () => {
+        
+        if (selectedVariantIndex !== null) {
+            const selectedVariantColor = product.variants[selectedVariantIndex].color;
+            try {
+                const response = await apiInstance.addProductToCart( product._id, selectedVariantColor, quantity);
+                if (response.data.message !== "Product added to cart") {
+                    alert("Không thể thêm sản phẩm vào giỏ hàng, vui lòng thử lại.");
+                }
+            } catch (error) {
+                console.error("Lỗi khi thêm vào giỏ hàng:", error);
+                alert("Có lỗi xảy ra, vui lòng thử lại.");
+            }
+        } else {
+            alert("Vui lòng chọn phân loại trước khi thêm vào giỏ hàng!");
+        }
+    };
     const totalRatings = product.totalRatings;
 
   return (
@@ -170,7 +187,7 @@ function ProductDisplay(props) {
                     <p className="p-14px">{product.variants[selectedVariantIndex].quantity} sản phẩm có sẵn</p>
                 </div>
                 <div className="box-order-btn">
-                    <button onClick={handleAddToCart} className="order-btn">
+                    <button onClick={handleBuyNow} className="order-btn">
                         <Link to='/cart'>
                             <strong>MUA NGAY</strong>
                             <span>(Thanh toán khi nhận hàng hoặc nhận tại cửa hàng)</span>

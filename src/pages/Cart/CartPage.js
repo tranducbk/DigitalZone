@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
@@ -6,9 +7,11 @@ import apiInstance from "../../api/api"; // Adjust the path to your API service
 import "./CartPage.css";
 import { MdDelete } from "react-icons/md";
 import { TiArrowBack } from "react-icons/ti";
+import Payment from "../../components/Payment/Payment";
  
 export default function CartPage() {
     const [cartItems, setCartItems] = useState([]);
+    const [popupOpen, setPopupOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const userId = localStorage.getItem("userID");
@@ -54,7 +57,7 @@ export default function CartPage() {
             }
         };
         fetchCartItemsWithNames();
-    }, []);
+    },[]);
  
  
     const handleQuantityChange = async (id, variantColor, value) => {
@@ -139,6 +142,13 @@ export default function CartPage() {
             alert("Failed to add rating.");
         }
     };
+
+    const handlePayment = async () => {
+        setPopupOpen(true);
+    }
+    const onClose = async () => {
+        setPopupOpen(false);
+    }
  
     const handleCheckout = async () => {
         const selectedItems = cartItems.filter((item) => item.selected); // Filter selected items
@@ -157,6 +167,44 @@ export default function CartPage() {
                 price: item.variant.sale, // Use sale price for the order
             })),
             totalAmount,
+            paymentMethod: "PayPal",
+            paymentStatus: "Completed",
+        };
+ 
+        try {
+            const response = await apiInstance.createOrder(orderData);
+            if (response.data) {
+                alert("Order created successfully!");
+                for (const item of orderData.items) {
+                    await handleRemoveItem(item.productId, item.variant.color);
+                }
+                navigate("/checkout");
+                console.log("card Order after created:", cartItems);
+                }
+        } catch (error) {
+            console.error("Error creating order:", error);
+            alert("Failed to create order.");
+        }
+    };
+
+    const handleCheckoutPending = async () => {
+        const selectedItems = cartItems.filter((item) => item.selected); // Filter selected items
+ 
+        if (selectedItems.length === 0) {
+            alert("Vui lòng lựa chọn sản phẩm để thanh toán!");
+            return;
+        }
+ 
+        const orderData = {
+            userId,
+            items: selectedItems.map(item => ({
+                productId: item.productId,
+                variant: item.variant,
+                quantity: item.quantity,
+                price: item.variant.sale,
+                paymentStatus: "Pending",
+            })),
+            totalAmount,
             paymentMethod: "Cash on Delivery", // Example payment method
         };
  
@@ -164,8 +212,12 @@ export default function CartPage() {
             const response = await apiInstance.createOrder(orderData);
             if (response.data) {
                 alert("Order created successfully!");
+                for (const item of orderData.items) {
+                    await handleRemoveItem(item.productId, item.variant.color);
+                }
                 navigate("/checkout");
-            }
+                console.log("card Order after created:", cartItems);
+                }
         } catch (error) {
             console.error("Error creating order:", error);
             alert("Failed to create order.");
@@ -253,10 +305,10 @@ export default function CartPage() {
                                     </button>
                                 ) : (
                                     <div className='payment-choice'>
-                                        <button type="button" className="btn-complete-order" onClick={handleCheckout}>
+                                        <button type="button" className="btn-complete-order" onClick={handleCheckoutPending}>
                                             Thanh toán khi nhận hàng
                                         </button>
-                                        <button type="submit" className="btn-complete-order">
+                                        <button type="submit" onClick={handlePayment} className="btn-complete-order">
                                             Thanh toán online
                                         </button>
  
@@ -272,6 +324,11 @@ export default function CartPage() {
                                 )}
                             </div>
                         </div>
+                        {popupOpen && (
+                            <div>
+                            <Payment totalMoney={totalAmount} onPayment={handleCheckout} onClose={onClose} />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

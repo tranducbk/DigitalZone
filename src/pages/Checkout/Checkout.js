@@ -34,6 +34,8 @@ const Checkout = () => {
                     const response = await apiService.getUserOrders(user._id);
                     if (response.data) {
                         setUserOrders(response.data.orders);
+                        console.log('User Orders:', response.data.orders);
+                        
                     }
                 } catch (error) {
                     console.error('Failed to fetch user orders', error);
@@ -44,7 +46,8 @@ const Checkout = () => {
         fetchUserOrders();
     }, [user]);
 
-
+    console.log("userOrders", userOrders);
+    
     const { cart, selectedItems } = useContext(CartContext);
     const [recipientName, setRecipientName] = useState('');
     const [address, setAddress] = useState('');
@@ -247,12 +250,17 @@ const Checkout = () => {
                                     <div className="checkout-item-details">
                                         {item.items.map((productItem, index) => (
                                             <div key={index} className="product-details">
-                                                <h2>{productItem.productId.name}</h2>
-                                                <p className="item-price">Giá: {formatPrice(productItem.productId.price)}</p>
+                                                <div className="product-item">
+                                                    <img src={productItem.variant.image} alt={productItem.productId.name} className="product-image-checkout" />
+                                                    <div className="product-info">
+                                                        <h2>{productItem.productId.name}</h2>
+                                                        <p className="item-price">Giá: {formatPrice(productItem.productId.price)}</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
-                                    <div style={{ marginTop: '10px' }}>
+                                    <div className='checkout-item-quantity'>
                                         <h4>Tổng tiền: {formatPrice(item.totalAmount)}</h4>
                                     </div>
                                     <div className="date-form">
@@ -268,13 +276,12 @@ const Checkout = () => {
                                 {/* Order Status Card */}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <p style={{ marginRight: '10px' }}>Trạng thái :</p>
                                         <div className="order-status-card" style={getStatusCardStyle(item.orderStatus)}>
-                                            <p style={{margin: 'auto'}}>{getStatusText(item.orderStatus)}</p>
+                                            <p style={{margin: 'auto'}}>Trạng thái : {getStatusText(item.orderStatus)}</p>
                                         </div>
                                     </div>
                                     {/* Cancel Order Button */}
-                                    {item.orderStatus !== 'Delivered' || item.orderStatus !== 'Cancelled'  ? (
+                                    {item.orderStatus !== "Delivered" ? (
                                         <button
                                             className="cancel-order-button"
                                             onClick={() => handleCancelOrder(item._id)}

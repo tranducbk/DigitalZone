@@ -33,19 +33,17 @@ function Home() {
       <Popular category={"Chuột"} />
       <Popular category={"TV"} />
 
-      {/* Hiển thị icon chat nếu popup chưa mở */}
+      {/* Hiển thị icon chat nếu popup chưa mở
       {!isChatOpen && (
         <div className="chat-icon" onClick={handleClick}>
           <FaCommentDots size={40} color="#007bff" />
         </div>
       )}
 
-      {/* Hiển thị popup trong Home */}
       {isChatOpen && (
         <div className="chat-popup-container">
-          {/* <ChatPopup onClose={handleClose}  userId={userId}/> */}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

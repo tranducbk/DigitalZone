@@ -17,9 +17,8 @@ import {
   message,
 } from "antd";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import apiService from "../../api/api";
-
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -32,39 +31,39 @@ const DeliveryStatusComponent = ({ deliveryStatus }) => {
   let statusColor;
 
   switch (deliveryStatus) {
-    case 'Processing':
-      statusColor = 'orange';
+    case "Processing":
+      statusColor = "orange";
       break;
-    case 'Shipped':
-      statusColor = 'blue';
+    case "Shipped":
+      statusColor = "blue";
       break;
-    case 'Delivered':
-      statusColor = 'green';
+    case "Delivered":
+      statusColor = "green";
       break;
-    case 'Cancelled':
-      statusColor = 'red';
+    case "Cancelled":
+      statusColor = "red";
       break;
     default:
-      statusColor = 'gray';
+      statusColor = "gray";
   }
 
   return <Tag color={statusColor}>{deliveryStatus}</Tag>;
 };
 
-const PaymentStatusComponent = ({paymentStatus}) => {
+const PaymentStatusComponent = ({ paymentStatus }) => {
   let statusColor;
   switch (paymentStatus) {
-    case 'Pending':
-      statusColor = 'orange';
+    case "Pending":
+      statusColor = "orange";
       break;
-    case 'Completed':
-      statusColor = 'green';
+    case "Completed":
+      statusColor = "green";
       break;
-    case 'Failed':
-       statusColor ='red';
-       break;
+    case "Failed":
+      statusColor = "red";
+      break;
     default:
-      statusColor = 'gray';
+      statusColor = "gray";
   }
   return <Tag color={statusColor}>{paymentStatus}</Tag>;
 };
@@ -99,7 +98,7 @@ const Row2 = ({ label, value }) => (
 
 const Row1 = ({ label, value }) => (
   <Row gutter={[16, 16]}>
-    <Col span={6} style={{ fontSize: 16, fontWeight: "bold"  }}>
+    <Col span={6} style={{ fontSize: 16, fontWeight: "bold" }}>
       {label}:
     </Col>
     <Col span={18} style={{ fontSize: 18 }}>
@@ -109,21 +108,21 @@ const Row1 = ({ label, value }) => (
 );
 
 const OrderDetails = ({ order, handleRefresh }) => {
-  const [orderStatus, setOrderStatus] = useState(order.orderStatus); 
+  const [orderStatus, setOrderStatus] = useState(order.orderStatus);
   const { userId } = order;
-  const user = userId; 
+  const user = userId;
   const columns = [
     {
       title: "Sản phẩm",
-      dataIndex: "productName", 
+      dataIndex: "productName",
       key: "name",
-      render: (_, record) => record.productId.name
+      render: (_, record) => record.productId.name,
     },
     {
-      title:  "Mẫu",
+      title: "Mẫu",
       dataIndex: "Mẫu",
       key: "mau",
-      render: (_, record) => record.variant.color
+      render: (_, record) => record.variant.color,
     },
     {
       title: "Số lượng",
@@ -141,9 +140,10 @@ const OrderDetails = ({ order, handleRefresh }) => {
       key: "price",
       render: (_, record) => {
         // Tính đơn giá sau khi trừ đi sale của mẫu
-        const sale = record.variant?.sale || 0; 
-        const discountedPrice = record.productId.price - (record.productId.price * (sale / 100));
-        return formatCurrency(discountedPrice); 
+        const sale = record.variant?.sale || 0;
+        const discountedPrice =
+          record.productId.price - record.productId.price * (sale / 100);
+        return formatCurrency(discountedPrice);
       },
     },
     {
@@ -152,43 +152,53 @@ const OrderDetails = ({ order, handleRefresh }) => {
       key: "total",
       render: (_, record) => {
         // Tính đơn giá sau khi trừ đi sale của mẫu
-        const sale = record.variant?.sale || 0; 
-        const discountedPrice = record.productId.price - (record.productId.price * (sale / 100));
-        const total = discountedPrice * record.variant.quantity
-        return formatCurrency(total); 
+        const sale = record.variant?.sale || 0;
+        const discountedPrice =
+          record.productId.price - record.productId.price * (sale / 100);
+        const total = discountedPrice * record.variant.quantity;
+        return formatCurrency(total);
       },
-    }
+    },
   ];
 
   const menu = (
     <Menu>
-      <Menu.Item onClick={() => showConfirm("Processing")}>Đang xử lý</Menu.Item>
+      <Menu.Item onClick={() => showConfirm("Processing")}>
+        Đang xử lý
+      </Menu.Item>
       <Menu.Item onClick={() => showConfirm("Shipped")}>Đã gửi</Menu.Item>
       <Menu.Item onClick={() => showConfirm("Delivered")}>Đã giao</Menu.Item>
     </Menu>
   );
 
-    // Hàm để thay đổi trạng thái giao hàng
+  // Hàm để thay đổi trạng thái giao hàng
   const handleChangeDeliveryStatus = async (orderId, status) => {
     try {
-      const response = await apiService.updateOrderAdmin(orderId, status);
+      console.log("Updating order status:", orderId, status);
       
+      const response = await apiService.updateOrderAdmin(orderId, status);
+
       if (response.status === 200) {
-        message.success('Trạng thái đơn hàng đã được cập nhật');
-        console.log('Order status updated:', response.data.order);
-  
+        message.success("Trạng thái đơn hàng đã được cập nhật");
+        console.log("Order status updated:", response.data.order);
+
         // Cập nhật trạng thái trong state nếu cần
-        setOrderStatus(status); 
+        setOrderStatus(status);
         handleRefresh(); // Làm mới dữ liệu
       } else {
         // Xử lý trường hợp API không trả về status 200
-        console.error('Error updating order status:', response.data?.message || 'Lỗi không xác định');
-        message.error(response.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
+        console.error(
+          "Error updating order status:",
+          response.data?.message || "Lỗi không xác định"
+        );
+        message.error(
+          response.data?.message || "Có lỗi xảy ra khi cập nhật trạng thái"
+        );
       }
     } catch (error) {
       // Xử lý lỗi kết nối hoặc lỗi không xác định
-      console.error('Error:', error);
-      message.error('Lỗi kết nối hoặc xử lý yêu cầu');
+      console.error("Error:", error);
+      message.error("Lỗi kết nối hoặc xử lý yêu cầu");
     }
   };
 
@@ -202,7 +212,7 @@ const OrderDetails = ({ order, handleRefresh }) => {
   };
 
   const handleOk = () => {
-    handleChangeDeliveryStatus(order._id, newStatus); 
+    handleChangeDeliveryStatus(order._id, newStatus);
     setIsModalVisible(false);
   };
 
@@ -210,40 +220,43 @@ const OrderDetails = ({ order, handleRefresh }) => {
     setIsModalVisible(false);
   };
 
-  useEffect(() => {setOrderStatus(order.orderStatus);}, [order.orderStatus]); 
+  useEffect(() => {
+    setOrderStatus(order.orderStatus);
+  }, [order.orderStatus]);
 
   return (
     <>
       <h2>Đơn hàng</h2>
-      <div style={{ width: '70vw', padding: "10px 20px",}}>
+      <div style={{ width: "70vw", padding: "10px 20px" }}>
         <Row1 label="Mã" value={order._id} />
         <Row1 label="Ngày đặt" value={formatDate(order.createdAt)} />
-        <Row1
-          label="Hình thức thanh toán"
-          value={order.paymentMethod}
-        />
+        <Row1 label="Hình thức thanh toán" value={order.paymentMethod} />
 
         <Row1 label="Người mua" value="" />
         <Row2 label="Tên" value={user.userName} />
         <Row2 label="Số điện thoại" value={user.phoneNumber} />
-        <Row2 label="Địa chỉ" value={`${user.diaChi.ward}, ${user.diaChi.district}, ${user.diaChi.city}`} />
+        <Row2
+          label="Địa chỉ"
+          value={`${user.diaChi.ward}, ${user.diaChi.district}, ${user.diaChi.city}`}
+        />
 
         <Row1 label="Sản phẩm" />
         <Table
           dataSource={order.items}
           columns={columns}
           size="large"
-          style={{ width: '100%' }} 
+          style={{ width: "100%" }}
           pagination={false}
           summary={(pageData) => {
             let sum = 0;
 
             // Tính tổng tiền cho từng sản phẩm trong pageData
             pageData.forEach(({ productId, variant, quantity }) => {
-              const sale = variant?.sale || 0; 
-              const discountedPrice = productId.price - (productId.price * (sale / 100));
+              const sale = variant?.sale || 0;
+              const discountedPrice =
+                productId.price - productId.price * (sale / 100);
               const totalProduct = discountedPrice * quantity;
-              
+
               sum += totalProduct; // Cộng tổng tiền của sản phẩm vào tổng tiền đơn hàng
             });
             return (
@@ -275,12 +288,12 @@ const OrderDetails = ({ order, handleRefresh }) => {
             </Dropdown>
           </Col>
         </Row>
-        <Row gutter={[16, 16]} style={{ margin: "auto"}}>
+        <Row gutter={[16, 16]} style={{ margin: "auto" }}>
           <Col span={6} style={{ fontSize: 16, fontWeight: "bold" }}>
             Trạng thái:
           </Col>
           <Col span={16} style={{ fontSize: 18 }}>
-            <PaymentStatusComponent paymentStatus={order.paymentStatus}/>
+            <PaymentStatusComponent paymentStatus={order.paymentStatus} />
           </Col>
         </Row>
       </div>
@@ -293,7 +306,10 @@ const OrderDetails = ({ order, handleRefresh }) => {
         okText="Xác nhận"
         cancelText="Hủy"
       >
-        <p>Bạn có chắc chắn muốn thay đổi trạng thái giao hàng thành "{newStatus}"?</p>
+        <p>
+          Bạn có chắc chắn muốn thay đổi trạng thái giao hàng thành "{newStatus}
+          "?
+        </p>
       </Modal>
     </>
   );

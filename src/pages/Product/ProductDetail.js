@@ -41,7 +41,7 @@ export default function ProductDetail() {
 
     const closePopup = () => {
     setIsPopupOpen(false);
-};
+    };
 
     useEffect(() => {
         async function fetchProduct() {
@@ -81,8 +81,8 @@ export default function ProductDetail() {
             {isPopupOpen  && (
             <div>
             <LoginPopup onLogin={handleLogin} onClose={closePopup} />
-      </div>
-    )}
-  </div>
+            </div>
+            )}
+        </div>
     );
 }

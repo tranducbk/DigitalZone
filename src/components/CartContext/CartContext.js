@@ -1,46 +1,88 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import apiService from '../../api/api';
 
-const CartContext = createContext();
+export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState([]);
-    const [selectedItems, setSelectedItems] = useState([]);
+    const [cartItems, setCartItems] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const addToCart = (item) => {
-        setCart((prevCart) => {
-            const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-            if (existingItem) {
-                return prevCart.map(cartItem =>
-                    cartItem.id === item.id
-                        ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-                        : cartItem
-                );
-            } else {
-                const newPrice = item.old_price * (1 - item.selectedVariant.sale / 100);
-                return [...prevCart, { ...item, quantity: item.quantity || 1 ,newPrice}];
+    useEffect(() => {
+        const fetchCartItems = async () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                try {
+                    const response = await apiService.getCart(userId);
+                    setCartItems(response.data.cart || []);
+                } catch (error) {
+                    console.error('Error fetching cart:', error);
+                }
             }
-        });
+            setLoading(false);
+        };
+        fetchCartItems();
+    }, []);
+
+    const addToCart = async (product, quantity) => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return { success: false, message: 'Vui lòng đăng nhập' };
+        try {
+            const response = await apiService.addToCart(userId, product._id, quantity);
+            setCartItems(response.data.cart);
+            return { success: true };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Thêm vào giỏ hàng thất bại'
+            };
+        }
     };
 
-    const removeFromCart = (item) => {
-        setCart((prevCart) => {
-            return prevCart.filter(cartItem => cartItem.id !== item.id);
-        });
+    const removeFromCart = async (productId) => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+        try {
+            const response = await apiService.removeFromCart(userId, productId);
+            setCartItems(response.data.cart);
+        } catch (error) {
+            console.error('Error removing from cart:', error);
+        }
+    };
+
+    const updateQuantity = async (productId, quantity) => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+        try {
+            const response = await apiService.updateCartItem(userId, productId, quantity);
+            setCartItems(response.data.cart);
+        } catch (error) {
+            console.error('Error updating cart:', error);
+        }
+    };
+
+    const clearCart = async () => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+        try {
+            await apiService.clearCart(userId);
+            setCartItems([]);
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+        }
     };
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart,selectedItems, setSelectedItems }}>
+        <CartContext.Provider value={{
+            cartItems,
+            addToCart,
+            removeFromCart,
+            updateQuantity,
+            clearCart,
+            loading
+        }}>
             {children}
         </CartContext.Provider>
     );
 };
 
-export const useCart = () => {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
-    return context;
-};
-
-export default CartContext;
+export const useCart = () => useContext(CartContext);

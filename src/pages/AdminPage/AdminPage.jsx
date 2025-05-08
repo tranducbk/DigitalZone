@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { UserOutlined, ProductOutlined, BellOutlined } from "@ant-design/icons";
-import { Badge, Button, Menu } from "antd";
+import {
+  UserOutlined,
+  ProductOutlined,
+  BellOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  InfoCircleOutlined,
+  LogoutOutlined,
+  DashboardOutlined,
+  CodeSandboxOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
+import { Badge, Button, Menu, Layout, Typography, Avatar, Tooltip as AntTooltip, Dropdown, Space } from "antd";
 import AdminUser from "../../componet/AdminUser/AdminUser";
 import AdminProduct from "../../componet/AdminProduct/AdminProduct";
 import boxImage from "./box.png";
 import AdminOrder from "../../componet/AdminOrder/AdminOrder";
 import AdminProfile from "../../componet/AdminProfile/AdminProfile";
 import styles from "./AdminPage.module.css";
-import { InfoCircleOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
-import Tooltip from "./Tooltip ";
+import UserMessageTooltip from "./Tooltip ";
 import CustomModal from './CustomModal';
 
-const socket = io("http://localhost:5001");
+const { Header, Sider, Content } = Layout;
+const { Title } = Typography;
 
 const logout = () => {
   console.log("User logged out");
@@ -20,177 +31,220 @@ const logout = () => {
   window.location.href = "/";
 };
 
-function getItem(label, key, icon, children, type) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    type,
-  };
-}
-
-const items = [
-  getItem("Sản phẩm", "products", <ProductOutlined />),
-  getItem("Người dùng", "users", <UserOutlined />),
-  getItem("Đơn hàng", "orders", <img src={boxImage} alt="Order" width={14} />),
-  getItem("Thông tin", "profile", <InfoCircleOutlined />),
+const menuItems = [
+  { key: 'products', icon: <ProductOutlined />, label: 'Sản phẩm' },
+  { key: 'users', icon: <UserOutlined />, label: 'Người dùng' },
+  { key: 'orders', icon: <CodeSandboxOutlined />, label: 'Đơn hàng' },
+  { key: 'profile', icon: <InfoCircleOutlined />, label: 'Thông tin' },
 ];
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [isTooltipVisible, setTooltipVisible] = useState(false);
+  const [isUserMessageTooltipVisible, setUserMessageTooltipVisible] = useState(false);
   const [isRead, setIsRead] = useState(true);
   const [keySelected, setKeySelected] = useState("products");
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [isChatModalVisible, setChatModalVisible] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const adminName = JSON.parse(localStorage.getItem('user'))?.userName || 'Admin';
+
+  const SIDER_WIDTH = 220;
+  const SIDER_COLLAPSED_WIDTH = 80;
 
   useEffect(() => {
     const role = localStorage.getItem("role");
     if (role !== "admin") {
-      window.location.href = "/";
+      console.warn("Access denied. Redirecting...");
       return;
     }
 
-    socket.on("receive_message", (data) => {
-      console.log("Received new message:", data);
-      setMessages((prevMessages) => [...prevMessages, data]);
-      setIsRead(false);
+    const newSocket = io("http://localhost:5001");
+    setSocket(newSocket);
 
+    newSocket.on("receive_message", (data) => {
+      console.log("Received new message:", data);
+      setIsRead(false);
       setUsers((prevUsers) => {
-        if (!prevUsers.some((user) => user.id === data.userId)) {
-          return [...prevUsers, { id: data.userId, mes: data.message }];
+        const userExists = prevUsers.find(user => user.id === data.userId);
+        if (userExists) {
+          return prevUsers.map(user =>
+            user.id === data.userId ? { ...user, mes: data.message, timestamp: Date.now() } : user
+          ).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         }
-        return prevUsers;
+        return [{ id: data.userId, mes: data.message, timestamp: Date.now() }, ...prevUsers]
+                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       });
     });
 
     return () => {
-      socket.off("receive_message");
+      newSocket.off("receive_message");
+      newSocket.disconnect();
     };
   }, []);
 
   const handleBellClick = (event) => {
-    const rect = event.target.getBoundingClientRect();
+    const rect = event.currentTarget.getBoundingClientRect();
     setTooltipPosition({
       top: rect.bottom + window.scrollY + 10,
-      left: rect.left + window.scrollX - 100,
+      left: rect.left + window.scrollX - (250 - rect.width / 2),
     });
-    setTooltipVisible((prevVisible) => !prevVisible);
+    setUserMessageTooltipVisible((prevVisible) => !prevVisible);
+    if (!isUserMessageTooltipVisible) {
+        setIsRead(true);
+    }
   };
 
-  const handleUserClick = (user) => {
+  const handleUserClickInTooltip = (user) => {
     setSelectedUser(user);
-    setTooltipVisible(false); // Close tooltip when a user is selected
-    setChatModalVisible(true); // Open chat modal with the selected user
+    setUserMessageTooltipVisible(false);
+    setChatModalVisible(true);
   };
 
-  const handleOnClick = ({ key }) => {
+  const handleMenuClick = ({ key }) => {
     setKeySelected(key);
+    if(isUserMessageTooltipVisible) setUserMessageTooltipVisible(false);
+  };
+
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
   };
 
   const renderPage = (key) => {
     switch (key) {
-      case "users":
-        return <AdminUser />;
-      case "products":
-        return <AdminProduct />;
-      case "orders":
-        return <AdminOrder />;
-      case "profile":
-        return <AdminProfile />;
-      default:
-        return <></>;
+      case "users": return <AdminUser />;
+      case "products": return <AdminProduct />;
+      case "orders": return <AdminOrder />;
+      case "profile": return <AdminProfile />;
+      default: return <AdminProduct />;
     }
   };
 
-  return (
-    <>
-      <header className={styles.header}>
-        <h1 className={styles.headerTitle}>Admin</h1>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <div style={{ position: "relative" }}>
-            <Badge dot={!isRead} offset={[-10, 10]}>
-              <Button
-                ghost
-                shape="circle"
-                icon={<BellOutlined />}
-                onClick={handleBellClick}
-              />
-            </Badge>
+  const userDropdownItems = [
+    {
+      key: 'viewProfile',
+      label: 'Xem hồ sơ',
+      icon: <UserOutlined />,
+      onClick: () => handleMenuClick({ key: 'profile' }),
+    },
+    {
+      key: 'goHome',
+      label: 'Về trang người dùng',
+      icon: <HomeOutlined />,
+      onClick: () => window.location.href = '/',
+    },
+    { type: 'divider' },
+    {
+      key: 'logout',
+      label: 'Đăng xuất',
+      icon: <LogoutOutlined />,
+      danger: true,
+      onClick: logout,
+    },
+  ];
 
-            <Tooltip
-              visible={isTooltipVisible}
-              position={tooltipPosition}
-              onClose={() => setTooltipVisible(false)}
-              content={
-                <div>
-                  <h4>Người dùng nhắn tin:</h4>
-                  <ul style={{ margin: 5, padding: 0, listStyle: "none" }}>
-                    {users.map((user) => (
-                      <li
-                        key={user.id}
-                        style={{
-                          padding: "8px",
-                          cursor: "pointer",
-                          background: "#f9f9f9",
-                          borderRadius: "4px",
-                          marginBottom: "5px",
-                        }}
-                        onClick={() => handleUserClick(user)}
-                      >
-                        <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
-                          ID: {user.id}
-                        </div>
-                        <div style={{ color: "#333" }}>
-                          Tin nhắn: {user.mes}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              }
+  return (
+    <Layout className={styles.adminLayout}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        trigger={null}
+        width={SIDER_WIDTH}
+        className={styles.sider}
+      >
+        <div className={`${styles.siderLogo} ${collapsed ? styles.siderLogoCollapsed : ''}`}>
+          {collapsed ? <DashboardOutlined /> : 'Admin Panel'}
+        </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[keySelected]}
+          items={menuItems}
+          onClick={handleMenuClick}
+          className={styles.menu}
+        />
+      </Sider>
+      <Layout
+        className={styles.siteLayout}
+      >
+        <Header className={styles.header}>
+          <div className={styles.headerLeft}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={toggleCollapsed}
+              className={styles.collapseButton}
             />
+            <Title level={3} className={styles.headerTitle}>
+              {menuItems.find(item => item.key === keySelected)?.label || 'Admin Dashboard'}
+            </Title>
           </div>
-          <Button
-            ghost
-            onClick={logout}
-            style={{ marginLeft: 10, marginRight: 40 }}
-          >
-            Đăng xuất
-          </Button>
-        </div>
-      </header>
-      <div>
-        <div className={styles.menuContainer}>
-          <Menu
-            mode="inline"
-            selectedKeys={[keySelected]}
-            style={{ height: "100%" }}
-            items={items}
-            onClick={handleOnClick}
-          />
-        </div>
-        <div className={styles.content}>
-          <div
-            style={{ height: "calc(100vh - 120px - 40px)", overflowY: "auto" }}
-          >
-            {renderPage(keySelected)}
+
+          <div className={styles.headerRight}>
+            <AntTooltip title={isRead ? "Không có tin nhắn mới" : "Có tin nhắn mới"} placement="bottom">
+              <Badge dot={!isRead} offset={[-3, 3]}>
+                <Button
+                  type="text"
+                  shape="circle"
+                  icon={<BellOutlined className={styles.headerIcon} />}
+                  onClick={handleBellClick}
+                />
+              </Badge>
+            </AntTooltip>
+
+            <Dropdown menu={{ items: userDropdownItems }} placement="bottomRight" arrow trigger={['click']}>
+                <Space>
+                  <Avatar className={styles.avatar} icon={<UserOutlined />} />
+                  <span style={{ color: '#fff', fontWeight: 500 }}>{adminName}</span>
+                </Space>
+            </Dropdown>
           </div>
-        </div>
-      </div>
-      {isChatModalVisible && (
+        </Header>
+        <Content className={styles.contentArea}>
+          {renderPage(keySelected)}
+        </Content>
+      </Layout>
+
+      {isUserMessageTooltipVisible && (
+        <UserMessageTooltip
+          visible={isUserMessageTooltipVisible}
+          position={tooltipPosition}
+          onClose={() => setUserMessageTooltipVisible(false)}
+          content={
+            <div className={styles.tooltipContent}>
+              <h4>Người dùng nhắn tin:</h4>
+              {users.length > 0 ? (
+                <ul>
+                  {users.map((user) => (
+                    <li
+                      key={user.id}
+                      onClick={() => handleUserClickInTooltip(user)}
+                    >
+                      <div className={styles.userId}>ID: {user.id}</div>
+                      <div className={styles.messagePreview}>Tin nhắn: {user.mes}</div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className={styles.noMessages}>Không có tin nhắn mới.</p>
+              )}
+            </div>
+          }
+        />
+      )}
+
+      {isChatModalVisible && selectedUser && socket && (
         <CustomModal
-          
           isVisible={isChatModalVisible}
-          onClose={() => setChatModalVisible(false)}
+          onClose={() => {
+            setChatModalVisible(false);
+            setSelectedUser(null);
+          }}
           selectedUser={selectedUser}
           socket={socket}
         />
       )}
-    </>
+    </Layout>
   );
 };
 

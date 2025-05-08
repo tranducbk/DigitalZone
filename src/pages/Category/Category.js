@@ -1,143 +1,111 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom';
-import Item from '../../components/Item/Item';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import ItemforList from '../../components/ItemforList/ItemforList';
 import './Category.css'
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs.js';
 import apiService from '../../api/api.js';
- 
+
 function Category(props) {
-  const [maxIndex, setMaxIndex] = useState(15); // Số lượng sản phẩm hiển thị mỗi lần
-  const { brandName } = useParams(); // Lấy tham số 'brandName' từ URL
-  const [brandList, setBrandList] = useState([]); // Danh sách các thương hiệu trong danh mục
-  const [productBrand, setProductBrand] = useState(''); // Thương hiệu hiện tại được chọn
-  const [filteredProducts, setFilteredProducts] = useState([]); // Danh sách sản phẩm đã được lọc
-  const [activeFilter, setActiveFilter] = useState(null); // Bộ lọc đang được áp dụng (giá, đánh giá, ...)
-  const [products, setProducts] = useState([]); // Tất cả sản phẩm
-  const { category } = props; // Danh mục hiện tại
-  const [priceRangeFilter, setPriceRangeFilter] = useState(''); // Bộ lọc phạm vi giá
-  const [ratingFilter, setRatingFilter] = useState(''); // Bộ lọc đánh giá
-  const [brandImages, setBrandImages] = useState({}); // Ảnh của các thương hiệu
+  const [maxIndex, setMaxIndex] = useState(15);
+  const { brandName } = useParams();
+  const [brandList, setBrandList] = useState([]);
+  const [productBrand, setProductBrand] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [products, setProducts] = useState([]);
+  const { category } = props;
+  const [brandImages, setBrandImages] = useState({});
+  const navigate = useNavigate();
 
-  // Lấy ảnh của thương hiệu từ API
-  async function getBrandImage(brandName) {
-    try {
-      const response = await apiService.getProducts(); // Gọi API để lấy sản phẩm
-      const product = response.data.products.find(product => product.brand.name.toLowerCase().trim() === brandName.toLowerCase().trim());
-      if (product) {
-        return product.brand.image; // Trả về ảnh thương hiệu nếu tìm thấy
-      }
-    } catch (error) {
-      console.error('Error fetching brand image:', error); // Log lỗi nếu không thể lấy ảnh
-      return null; // Trả về null nếu không tìm thấy ảnh
-    }
-  }
-
-  // Lấy hình ảnh của các thương hiệu
-  useEffect(() => {
-    const fetchBrandImages = async () => {
-      const images = {};
-      for (const brand of brandList) {
-        const image = await getBrandImage(brand); // Gọi hàm getBrandImage để lấy ảnh thương hiệu
-        images[brand] = image || '/path/to/default-image.png'; // Đặt hình mặc định nếu không có
-      }
-      setBrandImages(images); // Lưu lại ảnh thương hiệu vào state
-    };
-    fetchBrandImages();
-  }, [brandList]); // Chạy lại khi brandList thay đổi
-
-  // Lấy tất cả sản phẩm từ API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await apiService.getProducts(); // Gọi API lấy sản phẩm
+        const response = await apiService.getProducts();
         const products = response.data.products || [];
-        setProducts(products); // Lưu các sản phẩm vào state
+        setProducts(products);
       } catch (error) {
-        console.error('Error fetching products:', error); // Nếu có lỗi trong việc lấy sản phẩm, log lỗi
+        console.error('Lỗi khi lấy danh sách sản phẩm:', error);
       }
     };
     fetchProducts();
-  }, []); // Chỉ chạy một lần khi component được render
+  }, []);
 
-  // Reset các bộ lọc khi thay đổi danh mục hoặc thương hiệu
   useEffect(() => {
     setProductBrand('');
     setActiveFilter(null);
-    setPriceRangeFilter('');
-    setRatingFilter('');
     setFilteredProducts([]);
-  }, [category, brandName]); // Chạy lại khi category hoặc brandName thay đổi
+  }, [category, brandName]);
 
-  // Cuộn lên đầu trang khi thay đổi category
   useEffect(() => {
-    window.scrollTo(0, 0); // Cuộn trang lên đầu
-  }, [category]); // Chạy lại khi category thay đổi
-
-  // Các hàm xử lý bộ lọc giá, đánh giá và thương hiệu
-  const handlePriceRangeFilter = (range) => {
-    setPriceRangeFilter(range); // Cập nhật bộ lọc phạm vi giá
-  };
-
-  const handleRatingFilter = (rating) => {
-    setRatingFilter(rating); // Cập nhật bộ lọc đánh giá
-  };
+    window.scrollTo(0, 0);
+  }, [category]);
 
   const handleBrandFilter = (brand) => {
-    setProductBrand(brand); // Cập nhật thương hiệu được chọn
+    setProductBrand(brand);
+    const categoryPath = getCategoryPath(category);
+    navigate(`${categoryPath}/${brand.toLowerCase()}`);
   };
 
-  const handleFilterClick = (filter) => {
-    setActiveFilter(filter); // Cập nhật bộ lọc đang áp dụng
+  const getCategoryPath = (category) => {
+    const categoryMap = {
+      'Điện thoại': '/điện-thoại',
+      'Bàn Phím': '/bàn-phím',
+      'Laptop': '/laptop',
+      'TV': '/tivi',
+      'Chuột': '/chuột',
+      'Phụ Kiện': '/phụ-kiện',
+      'Tai Nghe': '/tai-nghe'
+    };
+    return categoryMap[category] || `/${category.toLowerCase()}`;
+  };
+
+  const handleSortClick = (sortType) => {
+    setActiveFilter({ type: 'sort', value: sortType });
   };
 
   const filterByPriceRange = (minPrice, maxPrice) => {
-    setActiveFilter({ type: 'price', min: minPrice, max: maxPrice }); // Cập nhật bộ lọc giá theo khoảng
+    setActiveFilter({ type: 'price', min: minPrice, max: maxPrice });
   };
 
-  // Hàm xử lý khi nhấn vào các tiêu chí sắp xếp
-  const handleSortClick = (sortType) => {
-    setActiveFilter({ type: 'sort', value: sortType }); // Cập nhật bộ lọc sắp xếp
-  };
-
-
-  // Lọc và sắp xếp sản phẩm khi danh sách sản phẩm hoặc bộ lọc thay đổi
   useEffect(() => {
-    // Tìm sản phẩm theo danh mục
     let filteredByCategory = products.filter(
       (product) => product.category.toLowerCase().trim() === category.toLowerCase().trim()
     );
   
-    // Lọc theo thương hiệu nếu có
     if (brandName) {
       filteredByCategory = filteredByCategory.filter(
         (item) => item.brand.name.toLowerCase() === brandName.toLowerCase()
       );
-      setProductBrand(brandName); // Cập nhật thương hiệu hiện tại
+      setProductBrand(brandName);
     }
   
-    setFilteredProducts(filteredByCategory); // Lưu lại các sản phẩm đã lọc vào state
+    setFilteredProducts(filteredByCategory);
   
-    // Cập nhật danh sách thương hiệu từ sản phẩm đã lọc
     const brands = Array.from(
-      new Set(filteredByCategory.map((product) => product.brand.name.toLowerCase()))  // Đảm bảo mỗi thương hiệu chỉ xuất hiện 1 lần
+      new Set(filteredByCategory.map((product) => product.brand.name.toLowerCase()))
     ).map((brand) => brand.charAt(0).toUpperCase() + brand.slice(1)); 
-    setBrandList(brands); // Cập nhật danh sách thương hiệu
-  }, [products, category, brandName]); // Chạy lại khi products, category, hoặc brandName thay đổi
+    setBrandList(brands);
 
-  // Lọc sản phẩm theo các bộ lọc đã chọn (giá, đánh giá, ...)
+    const images = {};
+    filteredByCategory.forEach(product => {
+      if (product.brand && product.brand.image) {
+        images[product.brand.name] = product.brand.image;
+      }
+    });
+    setBrandImages(images);
+  }, [products, category, brandName]);
+
   useEffect(() => {
     let filteredProducts = products.filter(
       (product) => product.category.toLowerCase().trim() === category.toLowerCase().trim()
     );
   
-    // Lọc theo thương hiệu nếu có
     if (productBrand) {
       filteredProducts = filteredProducts.filter(
         (product) => product.brand.name.toLowerCase() === productBrand.toLowerCase()
       );
     }
   
-    // Lọc theo phạm vi giá nếu có
     if (activeFilter && activeFilter.type === 'price' && activeFilter.min !== undefined && activeFilter.max !== undefined) {
       filteredProducts = filteredProducts.filter((product) => {
         const discountedPrice = product.price * (1 - product.variants[0].sale / 100);
@@ -145,17 +113,16 @@ function Category(props) {
       });
     }
   
-    // Sắp xếp theo các tiêu chí đã chọn (giá, khuyến mãi, đánh giá...)
     if (activeFilter && activeFilter.type === 'sort') {
       switch (activeFilter.value) {
         case 'highToLow':
-          filteredProducts.sort((a, b) => b.price * (1 - b.sale / 100) - a.price * (1 - a.sale / 100));
+          filteredProducts.sort((a, b) => b.price * (1 - b.variants[0].sale / 100) - a.price * (1 - a.variants[0].sale / 100));
           break;
         case 'lowToHigh':
-          filteredProducts.sort((a, b) => a.price * (1 - a.sale / 100) - b.price * (1 - b.sale / 100));
+          filteredProducts.sort((a, b) => a.price * (1 - a.variants[0].sale / 100) - b.price * (1 - b.variants[0].sale / 100));
           break;
         case 'hotDeals':
-          filteredProducts.sort((a, b) => b.sale - a.sale);
+          filteredProducts.sort((a, b) => b.variants[0].sale - a.variants[0].sale);
           break;
         case 'highRating':
           filteredProducts.sort((a, b) => b.rating - a.rating);
@@ -165,24 +132,22 @@ function Category(props) {
       }
     }
   
-    setFilteredProducts(filteredProducts); // Cập nhật danh sách sản phẩm đã lọc
-  }, [products, productBrand, category, activeFilter]); // Chạy lại khi products, productBrand, category, hoặc activeFilter thay đổi
+    setFilteredProducts(filteredProducts);
+  }, [products, productBrand, category, activeFilter]);
   
   return (
     <div className='category-container'>
-      {/* Breadcrumbs giúp người dùng điều hướng */}
       <Breadcrumbs category={props.category} brand={brandName} />
       
       <div className="clear"></div>
 
-      {/* Bộ lọc thương hiệu */}
       <div className="block-filter-brand">
         <div className="filter-brands-title">Chọn theo thương hiệu</div>
         <div className="list-brand">
           {brandList.map((brand, index) => (
             <Link
               key={index}
-              to={`/${props.category.toLowerCase()}/${brand.toLowerCase()}`}
+              to={`${getCategoryPath(props.category)}/${brand.toLowerCase()}`}
               className={`list-brand-item ${brand.toLowerCase() === productBrand.toLowerCase() ? 'active' : ''}`}
               onClick={() => handleBrandFilter(brand)}
             >
@@ -200,7 +165,6 @@ function Category(props) {
         </div>
       </div>
 
-      {/* Bộ lọc sắp xếp */}
       <div className="block-filter-sort">
         <div className="filter-sort__title">Sắp xếp theo</div>
         <div className="filter-sort__list-filter">
@@ -231,7 +195,6 @@ function Category(props) {
         </div>
       </div>
 
-      {/* Bộ lọc giá */}
       <div className="block-filter-sort">
         <div className="criteria-sort__title">Chọn theo tiêu chí</div>
         <div className="criteria-sort__list-filter">
@@ -268,7 +231,6 @@ function Category(props) {
         </div>
       </div>
 
-      {/* Hiển thị sản phẩm đã lọc */}
       <div className="block-filter-indexSort">
         <div className="filter-indexSort-title">
           <p>
@@ -285,7 +247,7 @@ function Category(props) {
         <div className="block-products-filter">
           {filteredProducts.slice(0, Math.min(maxIndex, filteredProducts.length)).map((product, index) => {
             return (
-              <Item
+              <ItemforList
                 key={index}
                 id={product._id}
                 name={product.name}
@@ -307,5 +269,5 @@ function Category(props) {
     </div>
   )
 }
- 
+
 export default Category;

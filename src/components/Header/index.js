@@ -1,173 +1,127 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import "./Header.css";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "./Header.module.css";
 import Search from "../Search";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBagShopping, faCircleUser, faList, faTruckField } from '@fortawesome/free-solid-svg-icons';
-import HeadlessTippy from '@tippyjs/react/headless';
-import Tippy from '@tippyjs/react/headless';
 import MenuBar from "../MenuBar/MenuBar";
-import 'tippy.js/dist/tippy.css';
-import logo from '../Assets/DigitalZone.png'
+import logo from '../Assets/DigitalZone.png';
 import { AuthContext } from "../AuthContext/AuthContext";
-import { faBell, faComment } from '@fortawesome/free-solid-svg-icons';
-// import useSignalR from "../useSignalR/useSignalR";
+import { useCart } from '../CartContext/CartContext';
+import { Layout, Button, Dropdown, Menu, Badge, Avatar, Popover, message } from 'antd';
+import { MenuOutlined, ShoppingOutlined, ShoppingCartOutlined, UserOutlined, BellOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 
+const { Header: AntHeader } = Layout;
 
-function Header() {
+const Header = () => {
+    const [isCategoryMenuVisible, setIsCategoryMenuVisible] = useState(false);
+    const { user, logout } = useContext(AuthContext);
+    const [isNotificationRead, setIsNotificationRead] = useState(true);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const navigate = useNavigate();
+    const { cartItems } = useCart();
+    const role = localStorage.getItem('role');
+    const isAdmin = role === 'admin';
     useEffect(() => {
         const role = localStorage.getItem("role");
-        if(role === "admin") window.location.href = "/admin";
-      });
-    const [isMenu, setIsMenu] = useState(false);
-    const { user, logout } = useContext(AuthContext);
-    const [isRead, setIsRead] = useState(true); 
-
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' ? true : false;
-
+    }, [navigate]);
+    const isLoggedIn = !!user;
     const handleLogout = () => {
         logout();
-        window.location.replace('/');
-        localStorage.removeItem('phoneNumber'); // Xóa thông tin người dùng
-        localStorage.removeItem('isLoggedIn'); // Xóa trạng thái đăng nhập
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userID')
+        message.success("Đăng xuất thành công!");
+        navigate('/');
     };
-
-    const [visible, setVisible] = useState(false);
-    const [message, setMessage] = useState('');
-    const showMessage = (msg) => {
-        setMessage(msg);
-        setVisible(false); 
-        setIsRead(false);
-      };
-    //   useSignalR(showMessage, '');
-    const handleNewMessage = () => {
-    //khi có thông báo mới thì setIsRead(false) để hiện dấu chấm đỏ
-    setIsRead(true);
-    if(message !== ''){
-        setVisible(!visible);
-    }
-  };
-
+    const handleNotificationClick = () => {
+        setIsNotificationRead(true);
+        message.info("Chức năng thông báo đang được phát triển.");
+    };
+    const userMenu = (
+        <Menu className={styles.userDropdownMenu}>
+            <Menu.Item key="profile" icon={<ProfileOutlined />} onClick={() => navigate('/profile')}>
+                Thông tin tài khoản
+            </Menu.Item>
+            <Menu.Item key="orders" icon={<ShoppingCartOutlined />} onClick={() => navigate('/checkout')}>
+                Lịch sử đơn hàng
+            </Menu.Item>
+            {isAdmin && (
+                <Menu.Item key="admin" icon={<UserOutlined />} onClick={() => navigate('/admin')}>
+                    Quản trị
+                </Menu.Item>
+            )}
+            <Menu.Divider />
+            <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout} danger>
+                Đăng xuất
+            </Menu.Item>
+        </Menu>
+    );
+    const menuBarContent = (
+        <MenuBar onClose={() => setIsCategoryMenuVisible(false)} />
+    );
     return (
-        <div className="header">
-            <div className="menu">
-                <div className="logo">
-                <Link to="/"><img src={logo} alt="DigitalZone" /></Link> 
+        <AntHeader className={styles.header}>
+            <div className={styles.headerContent}>
+                <div className={styles.leftSection}>
+                    <Link to="/" className={styles.logoLink}>
+                        <img src={logo} alt="DigitalZone" className={styles.logoImage} />
+                    </Link>
+                    <Popover
+                        content={menuBarContent}
+                        trigger="click"
+                        open={isCategoryMenuVisible}
+                        onOpenChange={setIsCategoryMenuVisible}
+                        placement="bottomLeft"
+                        overlayClassName={styles.menuBarPopover}
+                        arrow={false}
+                    >
+                        <Button icon={<MenuOutlined />} className={styles.categoryMenuButton}>
+                            Danh mục
+                        </Button>
+                    </Popover>
                 </div>
-                
-                <HeadlessTippy
-                    visible={isMenu}
-                    interactive
-                    placement="bottom-end"
-                    onClickOutside={() => setIsMenu(false)} 
-                    delay={[0, 700]}
-                    render={(attrs) => (
-                        <div className="menuBar" tabIndex="-1" {...attrs}>    
-                            <MenuBar />         
-                        </div>
-                    )}
-                >
-                    <div className="menu-list1" onClick={() => setIsMenu(!isMenu)}>
-                        <div className='my-icon'>
-                            <FontAwesomeIcon icon={faList} />  
-                        </div>
-                        <div className="box-content">
-                            <span className="title-y">DANH MỤC</span>
-                        </div>
-                    </div>
-                </HeadlessTippy>
-                
-                <div className="menu-list">
+                <div className={styles.centerSection}>
                     <Search />
                 </div>
-                <Link to="/checkout" className="about-delivery-tracking" >
-                    <div className="box-icon">
-                        <div className='my-icon'>
-                            <FontAwesomeIcon icon={faTruckField} className='fa-h-24px' />
-                        </div>
-                    </div>
-                    <div className="box-content">
-                        <p className="title-y">
-                        Đơn hàng
-                        </p>
-                    </div>
-                </Link>
-                <div className="menu-list">
-                    <div className="shop-cart">
-                        <Link to="/cart" className="shop-cart">
-                            <div className="box-icon">
-                                <div className='my-icon'>
-                                    <FontAwesomeIcon icon={faBagShopping} className='fa-h-24px' />
-                                </div>
-                            </div>
-                            <div className="box-content">
-                                <p className="title-y">
-                                    Giỏ hàng
-                                </p>
-                                <span className="count"></span>
-                            </div>        
-                        </Link>
-                    </div>
-                </div>
-                
-                <div>
+                <div className={styles.rightSection}>
+                    <Link to="/checkout" className={styles.actionButton}>
+                        <ShoppingOutlined />
+                        <span className={styles.actionText}>Đơn hàng</span>
+                    </Link>
+                    <Link to="/cart" className={styles.actionButton}>
+                        <Badge count={cartItems.length}>
+                            <ShoppingCartOutlined style={{ color: '#fff' }} />
+                        </Badge>
+                        <span className={styles.actionText}>Giỏ hàng</span>
+                    </Link>
+                    {isLoggedIn && (
+                        <Badge dot={!isNotificationRead} size="small" offset={[-2, 5]}> 
+                            <Button 
+                                icon={<BellOutlined />} 
+                                className={styles.actionButton} 
+                                onClick={handleNotificationClick}
+                                type="text"
+                                shape="circle"
+                            />
+                        </Badge>
+                    )}
                     {isLoggedIn ? (
-                        <div style={{ backgroundColor: '#d70018' }} className="box-user">
-                        <div className="box-icon">
-                            <Link to='/profile' style={{ display: 'inline-block' }}>
-                            <div className="my-icon">
-                                <FontAwesomeIcon icon={faCircleUser} style={{ fontSize: '23px' }} className='avatar' />
-                            </div>
-                            </Link>
-                        </div>
-                        <div className="notification-icon" style={{ backgroundColor: '0065b3' }}>
-                            <Tippy
-                            interactive={true}
-                            visible={visible}
-                            placement="bottom"
-                            onClickOutside={() => setVisible(false)}
-                            render={attrs => (
-                                <div className="tooltip-noti" {...attrs}>
-                                {message}
-                                </div>
-                            )}
-                            >
-                            <button onClick={handleNewMessage} className="notification-icon">
-                                <FontAwesomeIcon icon={faBell} style={{ fontSize: '23px' }} className='icon-noti' />
-                                {!isRead && <FontAwesomeIcon icon={faComment} className="unread-dot" />}
-                            </button>
-                            </Tippy>
-                        </div>
-                        </div>
-                    ) : null}
-                    </div>
-
-                <div>
-                    {isLoggedIn ? (
-                        <div className="login-btn" onClick={handleLogout}>
-                            <div className="header-item about-member">
-                                <div className="box-content">
-                                    <span className="title-y">Đăng xuất</span>
-                                </div>
-                            </div>
-                        </div>
+                        <Dropdown overlay={userMenu} placement="bottomRight" trigger={['click']}>
+                            <Button className={styles.actionButton} type="text">
+                                <Avatar 
+                                    icon={<UserOutlined />} 
+                                    size="large" 
+                                    style={{ marginRight: 8, background: '#e6f4ff', color: '#1890ff' }}
+                                />
+                                <span className={styles.actionText}>{user?.userName || user?.email || 'Tài khoản'}</span>
+                            </Button>
+                        </Dropdown>
                     ) : (
-                        <Link to='/login' style={{ textDecoration: 'none' }}>
-                            <div className="login-btn">
-                                <div className="header-item about-member">
-                                    <div className="box-content">
-                                        <span className="title-y" style={{ textDecoration: 'none'}}>Đăng nhập</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
+                        <Button className={styles.actionButton} type="text" onClick={() => navigate('/login')}>
+                            <UserOutlined />
+                            <span className={styles.actionText}>Đăng nhập</span>
+                        </Button>
                     )}
                 </div>
             </div>
-        </div>
+        </AntHeader>
     );
-}
+};
 
 export default Header;

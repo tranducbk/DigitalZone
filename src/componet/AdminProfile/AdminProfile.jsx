@@ -1,248 +1,309 @@
 import React, { useEffect, useState } from "react";
-import SelectedAddress from "../../components/CustomSelected/selectedAddress";
-import addressData from "../../pages/RegisterAccount/address-data.json"
-import { Button, Modal, Input, message, Spin, Card } from "antd";
-import apiService from "../../api/api";
-import "./AdminProfile.css";
+import {
+  Button, Modal, Input, message, Spin, Card, Form, Descriptions, // Thêm Form, Descriptions
+  Space, Typography // Thêm Space, Typography
+} from "antd";
+import {
+  UserOutlined, PhoneOutlined, HomeOutlined, EditOutlined, KeyOutlined, MailOutlined,
+  SolutionOutlined, // Icon cho thông tin cá nhân
+  LockOutlined, // Icon cho mật khẩu
+  SaveOutlined // Icon cho nút lưu
+} from "@ant-design/icons";
+import SelectedAddress from "../../components/CustomSelected/selectedAddress"; // Đảm bảo đường dẫn đúng
+import addressData from "../../pages/RegisterAccount/address-data.json"; // Đảm bảo đường dẫn đúng
+import apiService from "../../api/api"; // Đảm bảo đường dẫn đúng
+import "./AdminProfile.css"; // Import CSS
+
+const { Title, Text } = Typography;
 
 const AdminProfile = () => {
-  const [admin, setAdmin] = useState();
+  const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
-  const [updatedAdmin, setUpdatedAdmin] = useState({
-          userName: '',
-          email: '',
-          phoneNumber: '',
-          diaChi: {
-              city: '',
-              district: '',
-              ward: '',
-          }
-      });
-  const [passwords, setPasswords] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+
+  const [updateForm] = Form.useForm();
+  const [passwordForm] = Form.useForm();
+
+  // Giữ lại state `updatedAdminData` để dễ dàng quản lý giá trị địa chỉ từ SelectedAddress
+  const [updatedAdminData, setUpdatedAdminData] = useState({
+    userName: '', email: '', phoneNumber: '',
+    diaChi: { city: '', district: '', ward: '' }
   });
 
   useEffect(() => {
     const fetchAdminData = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem("authToken");
-
-        if (!token) {
-          message.error("Bạn cần phải đăng nhập!");
-          return;
+        // Token nên được quản lý bởi apiService hoặc interceptor
+        const response = await apiService.getAdminProfile();
+        if (response.data && response.data.admin) {
+          const adminData = response.data.admin;
+          setAdmin(adminData);
+          // Set giá trị ban đầu cho form và state
+          const initialData = {
+            userName: adminData.userName || '',
+            email: adminData.email || '',
+            phoneNumber: adminData.phoneNumber || '',
+            diaChi: adminData.diaChi || { city: '', district: '', ward: '' },
+          };
+          setUpdatedAdminData(initialData);
+          updateForm.setFieldsValue(initialData);
+        } else {
+          message.error("Không tìm thấy dữ liệu Admin.");
         }
-
-        const response = await apiService.getAdminProfile()
-        console.log("response when call api getAdminProfile: ", response.data)
-        setAdmin(response.data.admin);
-        setUpdatedAdmin({
-          userName: response.data.admin.userName,
-          phoneNumber: response.data.admin.phoneNumber,
-          email: response.data.admin.email,
-          diaChi: response.data.admin.diaChi,
-        }); // Để sử dụng cho form cập nhật
       } catch (error) {
-        console.error(error);
-        message.error("Không thể lấy thông tin admin");
+        console.error("Lỗi khi lấy thông tin Admin:", error);
+        message.error(error.response?.data?.message || "Không thể lấy thông tin Admin.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchAdminData();
-  }, []);
+  }, [updateForm]);
 
-  const handleUpdateAdmin = async () => {  
+  const showUpdateModal = () => {
+    if (admin) { // Đảm bảo admin có dữ liệu trước khi set form
+      const currentData = {
+        userName: admin.userName || '',
+        email: admin.email || '',
+        phoneNumber: admin.phoneNumber || '',
+        diaChi: admin.diaChi || { city: '', district: '', ward: '' },
+      };
+      setUpdatedAdminData(currentData); // Cập nhật state cho SelectedAddress
+      updateForm.setFieldsValue(currentData); // Set giá trị cho Antd Form
+    }
+    setIsUpdateModalVisible(true);
+  };
+
+  const showPasswordModal = () => {
+    passwordForm.resetFields();
+    setIsPasswordModalVisible(true);
+  };
+
+  const handleCancelUpdate = () => setIsUpdateModalVisible(false);
+  const handleCancelPassword = () => setIsPasswordModalVisible(false);
+
+  const handleUpdateAdmin = async () => {
     try {
+      const values = await updateForm.validateFields(); // Lấy giá trị đã validate từ form
       setLoading(true);
-      const token = localStorage.getItem("authToken");
-
-      if (!token) {
-        message.error("Bạn cần phải đăng nhập!");
-        return;
-      }
       
-      
-      console.log("updatedAdmin before req: ", updatedAdmin);
-      await apiService.updateAdminProfile( updatedAdmin )
+      // Kết hợp giá trị từ form và diaChi từ state (vì SelectedAddress cập nhật state riêng)
+      const dataToSubmit = {
+        ...values,
+        diaChi: updatedAdminData.diaChi,
+      };
+      console.log("Dữ liệu gửi đi để cập nhật:", dataToSubmit);
+      await apiService.updateAdminProfile(dataToSubmit);
 
-      // console.log(response.data)
-      setAdmin((prev) => ({
-        ...prev,
-        ...updatedAdmin,
-      }));// Cập nhật admin mới
+      setAdmin(prev => ({ ...prev, ...dataToSubmit })); // Cập nhật state admin cục bộ
       message.success("Cập nhật thông tin thành công!");
       setIsUpdateModalVisible(false);
-    } catch (error) {
-      console.error(error);
-      message.error("Cập nhật thông tin thất bại!");
+    } catch (errorInfo) {
+      if (errorInfo.errorFields) {
+        message.error("Vui lòng kiểm tra lại thông tin!");
+      } else {
+        console.error("Lỗi cập nhật thông tin:", errorInfo);
+        message.error(errorInfo.response?.data?.message || "Cập nhật thông tin thất bại!");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handlePasswordChange = async () => {
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      message.error("Mật khẩu mới và xác nhận không khớp!");
-      return;
-    }
-
     try {
+      const values = await passwordForm.validateFields();
       setLoading(true);
-      const token = localStorage.getItem("authToken");
-
-      if (!token) {
-        message.error("Bạn cần phải đăng nhập!");
-        return;
-      }
-
-      const response = await apiService.changeAdminPassword(passwords)
-
+      // API thường chỉ cần currentPassword và newPassword
+      const payload = {
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      };
+      const response = await apiService.changeAdminPassword(payload);
       message.success(response.data.message || "Đổi mật khẩu thành công!");
       setIsPasswordModalVisible(false);
-    } catch (error) {
-      console.error(error);
-      message.error("Đổi mật khẩu thất bại!");
+    } catch (errorInfo) {
+      if (errorInfo.errorFields) {
+        message.error("Vui lòng kiểm tra lại thông tin!");
+      } else {
+        console.error("Lỗi đổi mật khẩu:", errorInfo);
+        message.error(errorInfo.response?.data?.message || "Đổi mật khẩu thất bại!");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const showUpdateModal = () => {
-    setIsUpdateModalVisible(true);
-  };
+  if (loading && !admin) {
+    return (
+      <div className="fullPageSpin">
+        <Spin size="large" tip="Đang tải dữ liệu Admin..." />
+      </div>
+    );
+  }
 
-  const showPasswordModal = () => {
-    setIsPasswordModalVisible(true);
-  };
+  if (!admin) {
+    return (
+      <div className="adminProfileContainer" style={{ textAlign: 'center', alignItems: 'center' }}>
+        <Title level={3} type="secondary">Không có thông tin Admin để hiển thị.</Title>
+        <Text type="secondary">Vui lòng thử lại hoặc liên hệ hỗ trợ.</Text>
+      </div>
+    );
+  }
 
-  const handleCancelUpdate = () => {
-    setIsUpdateModalVisible(false);
-    setUpdatedAdmin(admin); // Reset dữ liệu nếu hủy
-  };
+  const displayAddress = admin.diaChi && (admin.diaChi.ward || admin.diaChi.district || admin.diaChi.city)
+    ? `${admin.diaChi.ward || ''}${admin.diaChi.ward && admin.diaChi.district ? ', ' : ''}${admin.diaChi.district || ''}${ (admin.diaChi.district || admin.diaChi.ward) && admin.diaChi.city ? ', ' : ''}${admin.diaChi.city || ''}`.trim().replace(/^,|,$/g, '') // Xóa dấu phẩy thừa
+    : "Chưa cập nhật";
 
-  const handleCancelPassword = () => {
-    setIsPasswordModalVisible(false);
-    setPasswords({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-  };
-
-  const handleChange = (field, value) => {
-    setUpdatedAdmin((prev) => ({ ...prev, [field]: value }));
-  };
 
   return (
-    <div style={{ width: "100%", height:'100%' }}>
-      {loading ? (
-        <Spin size="large" />
-      ) : (
+    <div className="adminProfileContainer">
+      <div className="profileCardWrapper">
         <Card
           title={
-            <div style={{ fontWeight: "bold", fontSize: "24px" }}>
-              {`Welcome Admin`}
+            <div className="cardTitle">
+              <SolutionOutlined className="cardTitleIcon" /> Thông tin Tài khoản Admin
             </div>
           }
           extra={
-            <>
-              <Button onClick={showUpdateModal} style={{ marginRight: "10px"}}>
-                Cập nhật thông tin
-              </Button> 
-              <Button onClick={showPasswordModal}>Đổi mật khẩu</Button>
-            </>
+            <Space className="cardExtraButtons">
+              <Button icon={<EditOutlined />} onClick={showUpdateModal} type="primary">
+                Sửa thông tin
+              </Button>
+              <Button icon={<LockOutlined />} onClick={showPasswordModal} type="default" danger>
+                Đổi mật khẩu
+              </Button>
+            </Space>
           }
-          style={{ width: '70%', margin: "auto", height:'auto' }}
+          className="profileCard"
+          bordered={false} // Bỏ viền Card cho nhẹ nhàng hơn
+          loading={loading && !!admin} // Spin trên Card khi đang thực hiện action
         >
-          <p><strong>Tên:</strong> {admin?.userName || "Chưa có thông tin"}</p>
-          <p><strong>Số điện thoại:</strong> {admin?.phoneNumber || "Chưa có thông tin"}</p>
-          <p>
-            <strong>Địa chỉ: </strong>
-            { `${updatedAdmin.diaChi.ward}, ${updatedAdmin.diaChi.district}, ${updatedAdmin.diaChi.city}` }
-          </p>
+          <Descriptions bordered column={1} size="middle">
+            <Descriptions.Item label={<><UserOutlined /> Tên Admin</>}>
+              <Text strong>{admin.userName || "N/A"}</Text>
+            </Descriptions.Item>
+            <Descriptions.Item label={<><MailOutlined /> Email</>}>
+              {admin.email || "N/A"}
+            </Descriptions.Item>
+            <Descriptions.Item label={<><PhoneOutlined /> Số điện thoại</>}>
+              {admin.phoneNumber || "N/A"}
+            </Descriptions.Item>
+            <Descriptions.Item label={<><HomeOutlined /> Địa chỉ</>}>
+              {displayAddress}
+            </Descriptions.Item>
+          </Descriptions>
         </Card>
-      )}
+      </div>
 
       {/* Modal Cập nhật thông tin */}
       <Modal
         title={
-          <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "18px" }}>
-            Cập nhật thông tin
+          <div className="modalTitle">
+            <EditOutlined className="modalTitleIcon" /> Cập nhật thông tin
           </div>
         }
         visible={isUpdateModalVisible}
         onOk={handleUpdateAdmin}
         onCancel={handleCancelUpdate}
-        confirmLoading={loading}
+        confirmLoading={loading && isUpdateModalVisible} // Chỉ loading khi modal này active
+        destroyOnClose
+        okText={<><SaveOutlined /> Lưu thay đổi</>}
+        cancelText="Hủy bỏ"
+        width={600}
+        maskClosable={false}
       >
-        <div style={{ marginBottom: "10px" }}>
-          <label>Tên: </label>
-          <Input
-            value={updatedAdmin.userName || ""}
-            onChange={(e) => handleChange("userName", e.target.value)}
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Số điện thoại: </label>
-          <Input
-            value={updatedAdmin.phoneNumber || ""}
-            onChange={(e) => handleChange("phoneNumber", e.target.value)}
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-        <SelectedAddress
-          address={updatedAdmin.diaChi} // Truyền giá trị hiện tại của diaChi
-          setAddress={(newAddress) =>
-            setUpdatedAdmin((prev) => ({
-              ...prev,
-              diaChi: newAddress,
-            }))
-          }
-          addressData={addressData}
-        />
-        </div>
+        <Form form={updateForm} layout="vertical" initialValues={updatedAdminData}>
+          <Form.Item
+            name="userName" label="Tên Admin" className="formItem"
+            rules={[{ required: true, message: "Tên Admin không được để trống!" }]}
+          >
+            <Input prefix={<UserOutlined />} placeholder="Nhập tên Admin" />
+          </Form.Item>
+          <Form.Item
+            name="email" label="Email" className="formItem"
+            rules={[
+                { required: true, message: "Email không được để trống!" },
+                { type: 'email', message: 'Email không đúng định dạng!' }
+            ]}
+          >
+            <Input prefix={<MailOutlined />} placeholder="Nhập địa chỉ email" />
+          </Form.Item>
+          <Form.Item
+            name="phoneNumber" label="Số điện thoại" className="formItem"
+            rules={[{ required: true, message: "Số điện thoại không được để trống!" }]}
+          >
+            <Input prefix={<PhoneOutlined />} placeholder="Nhập số điện thoại" />
+          </Form.Item>
+          <Form.Item label="Địa chỉ chi tiết" className="formItem">
+            <div className="addressSelectorContainer">
+              <SelectedAddress
+                address={updatedAdminData.diaChi} // Giá trị từ state để SelectedAddress render
+                setAddress={(newAddress) => {
+                  // Cập nhật state `updatedAdminData` để re-render SelectedAddress
+                  // và để có giá trị mới nhất khi submit
+                  setUpdatedAdminData(prev => ({ ...prev, diaChi: newAddress }));
+                  // Không cần thiết setFieldsValue cho 'diaChi' nếu nó không phải là một field của Antd Form
+                }}
+                addressData={addressData}
+              />
+            </div>
+          </Form.Item>
+        </Form>
       </Modal>
 
       {/* Modal Đổi mật khẩu */}
       <Modal
         title={
-          <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "18px" }}>
-            Đổi mật khẩu
+          <div className="modalTitle">
+            <LockOutlined className="modalTitleIcon" /> Đổi mật khẩu
           </div>
         }
-        className="change-password-modal"
         visible={isPasswordModalVisible}
         onOk={handlePasswordChange}
         onCancel={handleCancelPassword}
-        confirmLoading={loading}
+        confirmLoading={loading && isPasswordModalVisible} // Chỉ loading khi modal này active
+        destroyOnClose
+        okText={<><SaveOutlined /> Đổi mật khẩu</>}
+        cancelText="Hủy bỏ"
+        maskClosable={false}
       >
-        <div style={{ marginBottom: "10px" }}>
-          <label>Mật khẩu hiện tại: </label>
-          <Input.Password
-            value={passwords.currentPassword}
-            onChange={(e) => setPasswords((prev) => ({ ...prev, currentPassword: e.target.value }))}
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Mật khẩu mới: </label>
-          <Input.Password
-            value={passwords.newPassword}
-            onChange={(e) => setPasswords((prev) => ({ ...prev, newPassword: e.target.value }))}
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Xác nhận mật khẩu mới: </label>
-          <Input.Password
-            value={passwords.confirmPassword}
-            onChange={(e) => setPasswords((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-          />
-        </div>
+        <Form form={passwordForm} layout="vertical">
+          <Form.Item
+            name="currentPassword" label="Mật khẩu hiện tại" className="formItem"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu hiện tại!" }]}
+          >
+            <Input.Password prefix={<KeyOutlined />} placeholder="Mật khẩu hiện tại" />
+          </Form.Item>
+          <Form.Item
+            name="newPassword" label="Mật khẩu mới" className="formItem"
+            rules={[
+              { required: true, message: "Vui lòng nhập mật khẩu mới!" },
+              { min: 6, message: "Mật khẩu mới cần ít nhất 6 ký tự." },
+            ]}
+          >
+            <Input.Password prefix={<KeyOutlined />} placeholder="Mật khẩu mới (ít nhất 6 ký tự)" />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword" label="Xác nhận mật khẩu mới" className="formItem"
+            dependencies={['newPassword']}
+            rules={[
+              { required: true, message: "Vui lòng xác nhận mật khẩu mới!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('newPassword') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password prefix={<KeyOutlined />} placeholder="Nhập lại mật khẩu mới" />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

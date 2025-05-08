@@ -10,7 +10,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Xóa gạch chân cho tất cả các thẻ a */
+a {
+  text-decoration: none !important;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.noScroll {
+  overflow: hidden !important;
 }

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
-import './Popular.css'
+import React, { useEffect, useRef, useState } from 'react';
+import './Popular.css';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import Item from '../Item/Item'
+import Item from '../Item/Item';
 import apiService from '../../api/api.js';
 
 function Popular({ category }) {
@@ -19,7 +19,7 @@ function Popular({ category }) {
     const fetchData = async () => {
       try {
         const response = await apiService.getProducts();
-        const products = response.data.products
+        const products = response.data.products;
         const filteredProducts = products.filter((product) => product.category.toLowerCase().trim() === category.toLowerCase().trim());
 
         setDataProducts(filteredProducts);
@@ -58,34 +58,15 @@ function Popular({ category }) {
     fetchData();
   }, [category]);
   
- 
   useEffect(() => {
     const handleOffset = () => {
-      const element = elementRef.current;
-      let containerWidth;
-      
-      if (window.innerWidth > 1200) {
-        setOffset(index * 220);
-        setMaxIndex((data_product.length - 5));
-      } 
-      else if (window.innerWidth > 990) {
-        setOffset(index * (width / 4 + 2.5));
-        setMaxIndex((data_product.length - 4));
+      if (elementRef.current) {
+        const slideWidth = elementRef.current.offsetWidth;
+        const itemWidth = slideWidth / 5;
+        setWidth(itemWidth);
+        setMaxIndex(data_product.length - 5);
       }
-      else if (window.innerWidth > 717) {
-        setOffset(index * (width / 3 + 3.33333));
-        setMaxIndex((data_product.length - 3));
-      }
-      else {
-        setOffset(index * (width / 2 + 5));
-        setMaxIndex((data_product.length - 2));
-      }
-
-      if (element) {
-        containerWidth = element.offsetWidth;
-        setWidth(containerWidth);
-      }
-    }  
+    };
 
     handleOffset();
 
@@ -94,31 +75,33 @@ function Popular({ category }) {
     return () => window.removeEventListener('resize', handleOffset);
   }, [index, width, data_product.length]);
 
-  useEffect(() => {
-    if (index < -maxIndex) {
-      if (window.innerWidth > 1200) {
-        setIndex((data_product.length > 5) ? (-(data_product.length - 5)) : 0);
-      } 
-      else if (window.innerWidth > 990) {
-        setIndex((data_product.length > 4) ? (-(data_product.length - 4)) : 0);
-      }
-      else if (window.innerWidth > 717) {
-        setIndex((data_product.length > 3) ? (-(data_product.length - 3)) : 0);
-      }
-      else {
-        setIndex((data_product.length > 2) ? (-(data_product.length - 2)) : 0);
-      }
+  const handlePrev = () => {
+    if (index > 0) {
+      setIndex(index - 1);
+      setOffset(offset + width);
     }
- 
-  }, [maxIndex, index])
+  };
+
+  const handleNext = () => {
+    if (index < maxIndex) {
+      setIndex(index + 1);
+      setOffset(offset - width);
+    }
+  };
+
+  useEffect(() => {
+    if (index === 0) {
+      setOffset(0);
+    }
+  }, [maxIndex, index]);
 
   return (
     <>
-      {(data_product.length > 0) && 
+      {data_product.length > 0 && (
         <div className='popular'>
           <div className="product-list-title">
-            <Link to={`/${category.toLowerCase()}`} className='title'>
-                <h2>{title} - HOT DEAL</h2>
+            <Link className='title'>
+              <h2>{title} - HOT DEAL</h2>
             </Link>
           </div>
           <div className="product-list">
@@ -132,33 +115,32 @@ function Popular({ category }) {
                     transitionDuration: '300ms'
                   }}
                 >
-                  {data_product.map((item, index) => {
-                    return (
-                      <div key={index} className="swiper-slide">
-                        <Item 
-                            key={index} 
-                            id={item._id}
-                            name={item.name} 
-                            image={item.variants[0].image}
-                            price={item.price} 
-                            sale={item.variants[0].sale} 
-                            rating={item.rating}
-                        />
-                      </div>
-                    )
-                  })}
+                  {data_product.map((item, index) => (
+                    <div key={index} className="swiper-slide">
+                      <Item 
+                        key={index} 
+                        id={item._id}
+                        name={item.name} 
+                        image={item.variants[0].image}
+                        price={item.price} 
+                        sale={item.variants[0].sale} 
+                        rating={item.rating}
+                        hideAddToCart={true}
+                      />
+                    </div>
+                  ))}
                 </div>
                 <div 
-                  onClick={() => setIndex(prev => prev + 1)} 
+                  onClick={handlePrev} 
                   className="swiper-button-prev"
-                  style={ (index === 0) ? {display: 'none'} : {} }
+                  style={index === 0 ? {display: 'none'} : {}}
                 >
                   <FontAwesomeIcon icon={faChevronLeft} />
                 </div>
                 <div 
-                  onClick={() => setIndex(prev => prev - 1)} 
+                  onClick={handleNext} 
                   className="swiper-button-next"
-                  style={ (index <= -maxIndex) ? {display: 'none'} : {} }
+                  style={index >= maxIndex ? {display: 'none'} : {}}
                 >
                   <FontAwesomeIcon icon={faChevronRight} />
                 </div>
@@ -166,9 +148,9 @@ function Popular({ category }) {
             </div>
           </div>
         </div>
-      }
+      )}
     </>
-  )
+  );
 }
 
 export default Popular;

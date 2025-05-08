@@ -5,7 +5,29 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faHouse } from '@fortawesome/free-solid-svg-icons';
 
 function Breadcrumbs({ product, category, brand }) {
-  const lowercaseCategory = category.toLowerCase();
+  // Chuyển đổi category thành dạng URL-friendly
+  const getCategoryPath = (category) => {
+    switch(category) {
+      case 'Điện thoại':
+        return 'điện-thoại';
+      case 'Bàn Phím':
+        return 'bàn-phím';
+      case 'Laptop':
+        return 'laptop';
+      case 'TV':
+        return 'tivi';
+      case 'Chuột':
+        return 'chuột';
+      case 'Phụ Kiện':
+        return 'phụ-kiện';
+      case 'Tai Nghe':
+        return 'tai-nghe';
+      default:
+        return category.toLowerCase().replace(/\s+/g, '-');
+    }
+  };
+
+  const categoryPath = getCategoryPath(category);
 
   return (
     <div className='breadcrumbs'>
@@ -17,12 +39,12 @@ function Breadcrumbs({ product, category, brand }) {
           </div>
           <div className="breadcrumbs-block">
             <FontAwesomeIcon icon={faChevronRight} />
-            <Link to={`/${lowercaseCategory}`}>{category}</Link>
+            <Link to={`/${categoryPath}`}>{category}</Link>
           </div>
           {brand && (
             <div className="breadcrumbs-block">
               <FontAwesomeIcon icon={faChevronRight} />
-              <Link to={`/${lowercaseCategory}/${brand.toLowerCase()}`}>
+              <Link to={`/${categoryPath}/${encodeURIComponent(brand)}`}>
                 {brand}
               </Link>
             </div>

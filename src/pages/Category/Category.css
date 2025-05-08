@@ -9,7 +9,7 @@
 }
 
 .clear {
-    padding-top: 94px;
+    padding-top: 45px;
     position: relative;
 }
 
@@ -81,8 +81,7 @@
 .block-products-filter .item {
     margin-bottom: 0;
     max-width: 280px;
-    width: calc(25% - 6px);
-    min-width: 250px;
+    width: 19.4%;
 }
 
 .category-loadmore {
@@ -107,16 +106,7 @@
     border: 1px solid var(--color7);
 }
 
-
-
-.filter-sort__list-filter {
-    display: flex;
-    flex-wrap: wrap;
-    padding-left: 10px;
-    margin-bottom: 20px;
-    margin-top: 10px;
-
-}
+.filter-sort__list-filter,
 .criteria-sort__list-filter {
     display: flex;
     flex-wrap: wrap;
@@ -124,52 +114,53 @@
     margin-bottom: 20px;
     margin-top: 10px;
 }
-.filter-sort__list-filter .btn-filter {
-    align-items: center;
-    background: white;
-    border: 1.5px solid var(--main-color2);
-    border-radius: 10px;
-    color: #444;
-    cursor: pointer;
-    display: flex;
-    font-size: 12px;
-    height: 36px;
-    margin: 0 10px 10px 0;
-    padding: 7px 24px;
-    white-space: nowrap;
-}
 
-.filter-sort__list-filter .btn-filter.active {
-    background: white;
-    border: 1.5px solid var(--color7);
-    color: var(--color7);
-
-}
-.criteria-sort__list-filter .btn-filter.active {
-    background: white;
-    border: 1.5px solid var(--color7);
-    color: var(--color7);
-
-}
+.filter-sort__list-filter .btn-filter,
 .criteria-sort__list-filter .btn-filter {
     align-items: center;
     background: white;
-    border: 1.5px solid var(--main-color2);
-    border-radius: 10px;
+    border: 2px solid var(--main-color2);
+    border-radius: 20px;
     color: #444;
     cursor: pointer;
     display: flex;
-    font-size: 12px;
-    height: 36px;
-    margin: 0 10px 10px 0;
-    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    margin: 0 12px 12px 0;
+    padding: 8px 20px;
     white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-.filter-icon{
+
+.filter-sort__list-filter .btn-filter:hover,
+.criteria-sort__list-filter .btn-filter:hover {
+    background: linear-gradient(45deg, var(--main-color1), var(--color7));
+    border-color: transparent;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.filter-sort__list-filter .btn-filter.active,
+.criteria-sort__list-filter .btn-filter.active {
+    background: linear-gradient(45deg, var(--main-color1), var(--color7));
+    border-color: transparent;
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-icon {
     align-items: center;
     display: flex;
-    margin-right: 6px;
-    width: 15px;
+    margin-right: 8px;
+    width: 18px;
+    transition: transform 0.3s ease;
+}
+
+.btn-filter:hover .filter-icon {
+    transform: rotate(15deg);
 }
 
 .block-filter-brand .list-brand .list-brand-item {
@@ -185,68 +176,11 @@
 }
 
 .block-filter-brand .list-brand .list-brand-item:hover {
-    border-color: var(--color7); /* Thay đổi màu sắc khi di chuột */
-    transform: scale(1.05); /* Tăng kích thước một chút khi di chuột */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ */
+    border-color: var(--color7);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .block-filter-brand .list-brand .list-brand-item.active {
     border: 1.5px solid var(--color7);
 }
-
-.filter-sort__list-filter .btn-filter {
-    align-items: center;
-    background: white;
-    border: 1.5px solid var(--main-color2);
-    border-radius: 10px;
-    color: #444;
-    cursor: pointer;
-    display: flex;
-    font-size: 12px;
-    height: 36px;
-    margin: 0 10px 10px 0;
-    padding: 7px 24px;
-    white-space: nowrap;
-    transition: all 0.3s ease-in-out; /* Thêm hiệu ứng chuyển tiếp */
-}
-
-.filter-sort__list-filter .btn-filter:hover {
-    background: rgb(50, 132, 194); /* Thay đổi nền khi di chuột */
-    border-color: var(--color7);
-    color: rgb(255, 255, 0); /* Thay đổi màu chữ khi hover */
-}
-
-.filter-sort__list-filter .btn-filter.active {
-    background: rgb(50, 132, 194); /* Thay đổi nền khi di chuột */
-    border: 1.5px solid var(--color7);
-    color: rgb(255, 255, 0); /* Thay đổi màu chữ khi hover */
-}
-
-.criteria-sort__list-filter .btn-filter {
-    align-items: center;
-    background: white;
-    border: 1.5px solid var(--main-color2);
-    border-radius: 10px;
-    color: #444;
-    cursor: pointer;
-    display: flex;
-    font-size: 12px;
-    height: 36px;
-    margin: 0 10px 10px 0;
-    padding: 7px 24px;
-    white-space: nowrap;
-    transition: all 0.3s ease-in-out; /* Smooth transition effect */
-  }
-  
-  .criteria-sort__list-filter .btn-filter:hover {
-    background: rgb(50, 132, 194); /* Background change on hover */
-    border-color: var(--color7);
-    color: rgb(255, 255, 0); /* Text color change on hover */
-  }
-  
-  .criteria-sort__list-filter .btn-filter.active {
-    background: rgb(50, 132, 194); /* Background change on hover */
-    border: 1.5px solid var(--color7);
-    color: rgb(255, 255, 0); /* Text color change on hover */
-  }
-  

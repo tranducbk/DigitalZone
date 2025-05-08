@@ -1,0 +1,158 @@
+/* RegisterPage.module.css (Tương tự Login.module.css) */
+
+.registerPageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align top để form không bị nhảy khi lỗi xuất hiện */
+    min-height: calc(100vh - 80px); 
+    padding: 70px 10px 10px;
+    background-color: #f0f2f5; 
+  }
+  
+  /* Container cho form */
+  .registerFormContainer {
+    width: 35vw;
+    background-color: #fff;
+    padding: 40px 35px; 
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eee;
+  }
+  
+  
+  .registerTitle {
+    text-align: center;
+    margin-bottom: 8px !important;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1e0e4b;
+  }
+  .registerTitle .appName { /* Style cho tên app nếu muốn */
+      color: #1890ff; /* Hoặc màu đỏ #d70018 */
+      font-weight: bold;
+  }
+  
+  .registerSubtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 35px !important; /* Tăng khoảng cách */
+    font-size: 15px;
+    font-weight: 400;
+  }
+  
+  .registerForm {
+      /* Có thể thêm style nếu cần */
+  }
+  
+  /* Label */
+  .registerForm :global(.ant-form-item-label > label) {
+    font-weight: 500;
+    color: #333;
+    padding-bottom: 4px !important;
+    font-size: 14px;
+  }
+  
+  /* Input, Input.Password, InputNumber */
+  .registerForm :global(.ant-input-affix-wrapper),
+  .registerForm :global(.ant-input-password),
+  .registerForm :global(.ant-input-number),
+  .registerForm :global(.ant-select-selector) { /* Target cả Select */
+     border-radius: 6px !important;
+     border: 1px solid #d9d9d9 !important;
+     height: 44px !important;
+     font-size: 15px !important; /* Áp dụng font-size */
+     display: flex; /* Căn giữa nội dung Select */
+     align-items: center;
+  }
+  /* Đảm bảo padding cho input bên trong */
+  .registerForm :global(.ant-input) {
+       padding: 10px 12px !important;
+       font-size: 15px !important;
+  }
+  .registerForm :global(.ant-input-number-input) {
+      height: 42px !important; /* Điều chỉnh chiều cao input number */
+      padding: 10px 12px !important;
+       font-size: 15px !important;
+  }
+  
+  /* Hover/Focus effects */
+  .registerForm :global(.ant-input-affix-wrapper:hover),
+  .registerForm :global(.ant-input-password:hover),
+  .registerForm :global(.ant-input-number:hover),
+  .registerForm :global(.ant-select-selector:hover) {
+      border-color: #40a9ff !important;
+  }
+  .registerForm :global(.ant-input-affix-wrapper-focused),
+  .registerForm :global(.ant-input-password-focused),
+  .registerForm :global(.ant-input-number-focused),
+  .registerForm :global(.ant-select-focused .ant-select-selector) {
+      border-color: #1890ff !important;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+  }
+  
+  /* Prefix icon */
+  .registerForm :global(.ant-input-prefix) {
+      margin-right: 8px;
+      color: rgba(0,0,0,.45);
+  }
+  
+  /* Address Select Group */
+  .addressSelectGroup {
+      display: flex;
+      flex-flow: unset !important;
+      padding-bottom: 10px; /* Khoảng cách giữa các Select */
+  }
+  .addressSelectGroup :global(.ant-select) {
+      flex: 1; /* Chia đều không gian */
+  }
+  
+  /* Nút Đăng ký */
+  .submitButtonPrimary {
+    width: 100%;
+    height: 45px !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    background-color: #1890ff !important;
+    border: none !important;
+    margin-top: 10px; /* Khoảng cách với trường cuối */
+  }
+  .submitButtonPrimary:hover {
+     background-color: #40a9ff !important;
+     box-shadow: 0 2px 5px rgba(24, 144, 255, 0.3);
+  }
+  
+  /* Link Đăng nhập */
+  .loginLink {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: #666;
+  }
+  .loginLink a {
+      color: #1890ff;
+      font-weight: 500;
+  }
+  .loginLink a:hover {
+      text-decoration: underline;
+  }
+  
+  /* Error message */
+  .registerForm :global(.ant-form-item-explain-error) {
+      font-size: 13px; /* Cỡ chữ lỗi nhỏ hơn */
+      margin-top: 2px;
+  }
+  
+  .apiError {
+      color: #ff4d4f;
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+  }
+  
+  .successMessage {
+      color: #52c41a;
+      text-align: center;
+      margin-top: 15px;
+      font-weight: 500;
+  }

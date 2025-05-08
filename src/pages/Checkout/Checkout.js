@@ -1,310 +1,359 @@
-import React, { useEffect, useContext, useState, useMemo } from 'react';
-import CartContext from '../../components/CartContext/CartContext';
-import './Checkout.css';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+// Import Antd components
+import { 
+    Layout, Row, Col, Card, Typography, Descriptions, 
+    List, Avatar, Table, Tag, Button, message, Spin, 
+    Modal, Space, Tooltip, Divider, Image
+} from 'antd';
+import { 
+    UserOutlined, PhoneOutlined, HomeOutlined, 
+    ShoppingOutlined, // Icon cho đơn hàng
+    InfoCircleOutlined, CalendarOutlined, CreditCardOutlined, 
+    CarOutlined, CheckCircleOutlined, CloseCircleOutlined, 
+    QuestionCircleOutlined, DollarCircleOutlined, DeleteOutlined, // Icon xóa
+    StopOutlined, // Icon hủy
+    ExclamationCircleFilled
+} from '@ant-design/icons';
+import CartContext from '../../components/CartContext/CartContext'; // Vẫn cần nếu bạn xử lý cart từ đây (ít khả thi)
+import styles from './Checkout.module.css'; // Import CSS Module (đổi tên file nếu cần)
 import apiService from '../../api/api';
-import { MdDelete } from "react-icons/md";
+import { MdDelete } from "react-icons/md"; // Có thể bỏ nếu dùng DeleteOutlined
 
-const Checkout = () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
+const { Content } = Layout;
+const { Title, Text, Paragraph } = Typography;
+const { confirm } = Modal;
+
+// --- Các hàm helper và component Tag giữ nguyên ---
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(value);
+};
+
+const formatDate = (isoString) => {
+    if (!isoString) return 'Không xác định';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
+const DeliveryStatusTag = ({ status }) => {
+    const statusConfig = {
+        'Processing': { color: 'processing', text: 'Đang xử lý' },
+        'Shipped': { color: 'warning', text: 'Đang giao hàng' },
+        'Delivered': { color: 'success', text: 'Đã giao hàng' },
+        'Cancelled': { color: 'error', text: 'Đã hủy' },
+        'Pending': { color: 'default', text: 'Chờ xử lý' }
+    };
+
+    const config = statusConfig[status] || { color: 'default', text: status || 'Không xác định' };
+    return <Tag color={config.color}>{config.text}</Tag>;
+};
+
+const PaymentStatusTag = ({ status }) => {
+    const statusConfig = {
+        'Paid': { color: 'success', text: 'Đã thanh toán' },
+        'Unpaid': { color: 'error', text: 'Chưa thanh toán' },
+        'Pending': { color: 'warning', text: 'Đang xử lý' },
+        'Refunded': { color: 'default', text: 'Đã hoàn tiền' }
+    };
+
+    const config = statusConfig[status] || { color: 'default', text: status || 'Không xác định' };
+    return <Tag color={config.color}>{config.text}</Tag>;
+};
+// -------------------------------------------------
+
+const Checkout = () => { // Có thể đổi tên component thành OrderHistory
+    const isLoggedIn = !!localStorage.getItem('authToken'); // Kiểm tra token
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [userOrders, setUserOrders] = useState([]);
+    const [loadingOrders, setLoadingOrders] = useState(false); // Loading riêng cho danh sách đơn hàng
 
+    // Fetch user info
     useEffect(() => {
         const fetchUserData = async () => {
+            if (!isLoggedIn) {
+                setIsLoading(false);
+                return; // Không fetch nếu chưa đăng nhập
+            }
+            setIsLoading(true);
             try {
                 const response = await apiService.getUserProfile();
                 if (response.data && response.data.user) {
                     setUser(response.data.user);
+                } else {
+                    message.warning("Không thể tải thông tin người dùng.");
                 }
             } catch (error) {
-                console.error('Failed to fetch user info', error);
+                console.error('Lỗi tải thông tin người dùng:', error);
+                // message.error('Lỗi tải thông tin người dùng.'); // Có thể không cần báo lỗi này
             } finally {
                 setIsLoading(false);
             }
         };
-
         fetchUserData();
-    }, []);
+    }, [isLoggedIn]);
 
+    // Fetch user orders khi có user._id
     useEffect(() => {
         const fetchUserOrders = async () => {
-            if (user && user._id) {
+            if (user?._id) {
+                setLoadingOrders(true);
                 try {
                     const response = await apiService.getUserOrders(user._id);
-                    if (response.data) {
-                        setUserOrders(response.data.orders);
-                        console.log('User Orders:', response.data.orders);
-                        
+                    if (response.data && Array.isArray(response.data.orders)) {
+                        // Sắp xếp đơn hàng mới nhất lên đầu và kiểm tra dữ liệu
+                        const validOrders = response.data.orders.filter(order => {
+                            return order && order.items && Array.isArray(order.items);
+                        }).map(order => ({
+                            ...order,
+                            items: order.items.map(item => ({
+                                ...item,
+                                productId: item.productId || {},
+                                variant: item.variant || {},
+                                quantity: item.quantity || 0,
+                                price: item.price || 0,
+                                sale: item.sale || 0
+                            }))
+                        }));
+                        setUserOrders(validOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                    } else {
+                        setUserOrders([]);
                     }
                 } catch (error) {
-                    console.error('Failed to fetch user orders', error);
+                    console.error('Lỗi tải đơn hàng:', error);
+                    setUserOrders([]);
+                } finally {
+                    setLoadingOrders(false);
                 }
             }
         };
-
         fetchUserOrders();
-    }, [user]);
+    }, [user, isLoggedIn, isLoading]);
 
-    console.log("userOrders", userOrders);
-    
-    const { cart, selectedItems } = useContext(CartContext);
-    const [recipientName, setRecipientName] = useState('');
-    const [address, setAddress] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [isPaymentOptionsVisible, setIsPaymentOptionsVisible] = useState(false);
-    const orderDate = new Date();
+    const handleRefreshOrders = async () => {
+         if (user?._id) {
+                setLoadingOrders(true);
+                try {
+                    const response = await apiService.getUserOrders(user._id);
+                    if (response.data && Array.isArray(response.data.orders)) {
+                        setUserOrders(response.data.orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                    } else { 
+                        setUserOrders([]); 
+                    }
+                } catch (error) { 
+                    setUserOrders([]);
+                } finally { 
+                    setLoadingOrders(false); 
+                }
+            }
+    }
 
-    const selectedProducts = useMemo(() => {
-        const selectedSet = new Set(selectedItems);
-        return cart ? cart.filter(item => selectedSet.has(item.id)) : [];
-    }, [cart, selectedItems]);
-
-    const formatPrice = (price) => {
-        return price ? price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : 'N/A';
-    };
-
+    // --- Xử lý Hủy đơn hàng ---
     const handleCancelOrder = async (orderId) => {
-        const confirmCancel = window.confirm('Bạn có muốn hủy đơn hàng này?');
-        if (!confirmCancel) {
-            return; // Exit if the user cancels the confirmation dialog.
-        }
-    
-        try {
-            // Call the API to cancel the order
-            const response = await apiService.cancelOrder(orderId);
-
-            const userId = localStorage.getItem('userID')
-    
-            // Check if the response indicates success
-            if (response.data && response.data.success) {
-                // Update the UI by removing the canceled order
-                // `setUser`Orders((prevOrders) => prevOrders.filter(order => order._id !== orderId));
-                alert('Hủy đơn hàng thành công!');
-                const updatedOrdersResponse = await apiService.getUserOrders(userId);
-                setUserOrders(updatedOrdersResponse.data.orders); 
-            } else {
-                alert('Hủy đơn hàng thất bại. Vui lòng thử lại.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi hủy đơn hàng:', error);
-            alert('Đã xảy ra lỗi. Vui lòng thử lại sau.');
-        }
-    };
-
-    const handleDeleteOrder = async (orderId) => {
-        try {
-            // Call the API endpoint to delete the order
-            const response = await apiService.deleteOrder(orderId);
-
-            console.log(response)
-
-            // Check if the response is as expected
-            if (response.status === 200) {
-                // Remove the deleted order from the state
-                setUserOrders((prevOrders) => prevOrders.filter(order => order._id !== orderId));
-                alert('Đã xóa đơn hàng thành công!');
-            } else {
-                alert('Xóa đơn hàng thất bại. Vui lòng thử lại.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi xóa đơn hàng', error);
-            alert('Đã xảy ra lỗi. Vui lòng thử lại sau.');
-        }
-    };
-
-
-    const calculateEstimatedDeliveryDate = (days) => {
-        const deliveryDate = new Date(orderDate);
-        deliveryDate.setDate(deliveryDate.getDate() + days);
-        return deliveryDate.toLocaleDateString('vi-VN');
-    };
-
-    const handlePaymentClick = () => {
-        setIsPaymentOptionsVisible(true);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        var ids = [];
-        var numbers = [];
-
-        selectedProducts.forEach((item) => {
-            ids.push(item.selectedVariant.id);
-            numbers.push(item.quantity);
+        confirm({
+            title: 'Xác nhận hủy đơn hàng',
+            icon: <ExclamationCircleFilled />,
+            content: 'Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này có thể không thể hoàn tác.',
+            okText: 'Hủy đơn hàng',
+            okType: 'danger',
+            cancelText: 'Không',
+            centered: true,
+            onOk: async () => {
+                try {
+                    setLoadingOrders(true); // Có thể thêm loading riêng cho từng card
+                    const response = await apiService.cancelOrder(orderId);
+                    if (response.data && response.data.success) {
+                        message.success('Đã hủy đơn hàng thành công!');
+                        handleRefreshOrders(); // Tải lại danh sách đơn hàng
+                    } else {
+                        message.error(response.data?.message || 'Hủy đơn hàng thất bại.');
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi hủy đơn hàng:', error);
+                    message.error(error.response?.data?.message || 'Có lỗi xảy ra khi hủy đơn hàng.');
+                } finally {
+                     setLoadingOrders(false);
+                }
+            },
         });
-
-        // try {
-        //     const orderInfo = await AllApi.addOrder(ids, numbers);
-        //     const response = await AllApi.checkout(calculateTotalPrice, recipientName + " mua hang", orderInfo.data.maDonHang);
-        //     window.location.href = response.data;
-        // } catch (error) {
-        //     console.log(error);
-        // }
     };
 
+    // --- Columns cho bảng chi tiết sản phẩm trong đơn hàng ---
+    const itemColumns = [
+        {
+        title: "Sản phẩm",
+        dataIndex: ["productId", "name"],
+        key: "productName",
+        render: (name, record) => {
+            return (
+                <Space>
+                    <Image
+                        width={50}
+                        src={record.variant?.image || record.productId?.images?.[0] || '/images/default-product.png'} 
+                        preview={false}
+                    />
+                    <span>{record.productId?.name || 'Sản phẩm không tồn tại'}</span>
+                </Space>
+            );
+        },
+        },
+        {
+            title: "Phân loại",
+            dataIndex: ["variant", "color"],
+            key: "variantColor", 
+            render: (color) => color || 'N/A'
+        },
+        { 
+            title: "Đơn giá", 
+            key: "price", 
+            align: 'right', 
+            render: (_, record) => {
+                const price = record.price || record.productId?.price || 0;
+                const sale = record.sale || record.variant?.sale || 0;
+                const discountedPrice = price * (100 - sale) / 100;
+                return formatCurrency(discountedPrice);
+            }
+        },
+        { 
+            title: "SL", 
+            dataIndex: "quantity", 
+            key: "quantity", 
+            align: 'center', 
+            render: (qty) => qty || 0
+        },
+        { 
+            title: "Thành tiền", 
+            key: "total", 
+            align: 'right', 
+            render: (_, record) => {
+                const price = record.price || record.productId?.price || 0;
+                const sale = record.sale || record.variant?.sale || 0;
+                const quantity = record.quantity || 0;
+                const discountedPrice = price * (100 - sale) / 100;
+                return formatCurrency(discountedPrice * quantity);
+            }
+        },
+    ];
 
-    const handleCODPayment = async (e) => {
-        e.preventDefault();
-        var ids = [];
-        var numbers = [];
-
-        selectedProducts.forEach((item) => {
-            ids.push(item.selectedVariant.id);
-            numbers.push(item.quantity);
-        });
-        // try {
-        //     await AllApi.addOrder(ids, numbers);
-        // } catch (error) {
-        //     console.log(error);
-        // }
-    };
-
-    // Conditional rendering for loading and user data
+    // --- Render ---
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div className={styles.loadingContainer}><Spin size="large" /></div>;
     }
 
-    if (!user) {
+    if (!isLoggedIn || !user) {
         return (
-            <div className="no-user-info">
-                <p>Không có thông tin người dùng. Vui lòng đăng nhập.</p>
+            <div className={styles.checkoutPageContainer}>
+                <div className={styles.checkoutContent}>
+                    <div className={styles.noUserInfo}>
+                        <Title level={4}>Vui lòng đăng nhập</Title>
+                        <Paragraph>Bạn cần đăng nhập để xem lịch sử đơn hàng.</Paragraph>
+                        <Button type="primary" href="/login">Đăng nhập ngay</Button>
+                    </div>
+                </div>
             </div>
-        );        
+        );
     }
 
-    const getStatusCardStyle = (status) => {
-        switch (status) {
-            case 'Processing':
-                return { backgroundColor: '#f9c74f', color: '#fff', padding: '10px', borderRadius: '5px' };
-            case 'Shipped':
-                return { backgroundColor: '#4dabf7', color: '#fff', padding: '10px', borderRadius: '5px' };
-            case 'Delivered':
-                return { backgroundColor: '#43a047', color: '#fff', padding: '10px', borderRadius: '5px' };
-            case 'Cancelled':
-                return { backgroundColor: '#f44336', color: '#fff', padding: '10px', borderRadius: '5px' };
-            default:
-                return { backgroundColor: '#bdbdbd', color: '#fff', padding: '10px', borderRadius: '5px' };
-        }
-    };
-
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'Processing':
-                return 'Đang xử lý';
-            case 'Shipped':
-                return 'Đã giao hàng';
-            case 'Delivered':
-                return 'Đã nhận hàng';
-            case 'Cancelled':
-                return 'Đã hủy';
-            default:
-                return 'Trạng thái không xác định';
-        }
-    };
+     const userAddress = user.diaChi && (user.diaChi.ward || user.diaChi.district || user.diaChi.city) && user.diaChi.ward !== "Phường/xã"
+        ? `${user.diaChi.ward || ''}, ${user.diaChi.district || ''}, ${user.diaChi.city || ''}`.replace(/^(,\s*)+|(,\s*)+$/g, '') // Xóa dấu phẩy thừa
+        : 'Chưa cập nhật';
 
     return (
-        <div className="checkout-container">
-            <div style={{ display: "flex", justifyContent: 'center' }}>
-                <h1>Thông tin đơn hàng</h1>
-            </div>
-            <div className="checkout-page">
-                <form onSubmit={handleSubmit}>
-                    <h3>Thông tin người nhận hàng:</h3>
-                    {isLoggedIn ? (
-                        <div className="receiver-inf">
-                            <div className="form-group">
-                                <div className='form-group-inf'>
-                                    <label>Tên người nhận:</label>
-                                    <div>{user.userName}</div> {/* Display name as non-editable */}
-                                </div>
-                                <div className="form-group-inf">
-                                    <label>Số điện thoại người nhận:</label>
-                                    <div>{user.phoneNumber ? user.phoneNumber : "Hãy cập nhật số điện thoại"}</div>
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <div className="form-group-inf">
-                                    <label htmlFor="address">Địa chỉ nhận hàng:</label>
-                                    <div>
-                                    {(user.diaChi.ward === "Phường/xã" &&
-                                    user.diaChi.district === "Quận/huyện" &&
-                                    user.diaChi.city === "Tỉnh/Thành phố")
-                                        ? "Hãy cập nhật địa chỉ"
-                                        : `${user.diaChi.ward}, ${user.diaChi.district}, ${user.diaChi.city}`}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="receiver-inf">
-                            <p>Vui lòng đăng nhập để tự động điền thông tin người nhận.</p>
-                        </div>
-                    )}
+        <Layout className={styles.checkoutPageContainer}>
+            <Content className={styles.checkoutContent}>
+                <Title level={2} className={styles.pageTitle}>Lịch Sử Đơn Hàng</Title>
 
-                    <h3>Đơn hàng của bạn:</h3>
-                    <div className="checkout-items">
-                        {userOrders.map((item) => (
-                            <div key={item._id} className="checkout-item-wrapper">
-                                <div className="checkout-item">
-                                    <div className="checkout-item-details">
-                                        {item.items.map((productItem, index) => (
-                                            <div key={index} className="product-details">
-                                                <div className="product-item">
-                                                    <img src={productItem.variant.image} alt={productItem.productId.name} className="product-image-checkout" />
-                                                    <div className="product-info">
-                                                        <h2>{productItem.productId.name}</h2>
-                                                        <p className="item-price">Giá: {formatPrice(productItem.productId.price)}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className='checkout-item-quantity'>
-                                        <h4>Tổng tiền: {formatPrice(item.totalAmount)}</h4>
-                                    </div>
-                                    <div className="date-form">
-                                        <div className="date-inf" style={{ marginTop: '10px' }}>
-                                            <p>Ngày đặt hàng: {new Date(item.updatedAt).toLocaleDateString('vi-VN')}</p>
-                                        </div>
-                                        <div className="date-inf">
-                                            <p>Ngày nhận hàng dự kiến: {calculateEstimatedDeliveryDate(3)} đến {calculateEstimatedDeliveryDate(7)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Order Status Card */}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <div className="order-status-card" style={getStatusCardStyle(item.orderStatus)}>
-                                            <p style={{margin: 'auto'}}>Trạng thái : {getStatusText(item.orderStatus)}</p>
-                                        </div>
-                                    </div>
-                                    {/* Cancel Order Button */}
-                                    {item.orderStatus !== "Delivered" ? (
-                                        <button
-                                            className="cancel-order-button"
-                                            onClick={() => handleCancelOrder(item._id)}
-                                        >
-                                            Hủy đơn hàng
-                                            
-                                        </button>
-                                    ) : (
-                                        <button
-                                            className="cancel-order-button"
-                                            onClick={() => handleDeleteOrder(item._id)}
-                                        >
-                                            Xóa đơn hàng
-                                            <MdDelete style={{ fontSize: '20px', justifyContent: 'center', alignItems: 'center' }} />
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                {/* Card thông tin người dùng */}
+                <Card title={<Space><UserOutlined />Thông tin người nhận mặc định</Space>} className={styles.sectionCard}>
+                    <Descriptions bordered size="small" column={1} className={styles.userInfoDescriptions}>
+                        <Descriptions.Item label="Tên người nhận">{user.userName || 'N/A'}</Descriptions.Item>
+                        <Descriptions.Item label="Số điện thoại">{user.phoneNumber || 'Chưa cập nhật'}</Descriptions.Item>
+                        <Descriptions.Item label="Địa chỉ">{userAddress}</Descriptions.Item>
+                    </Descriptions>
+                    <div style={{ textAlign: 'right', marginTop: '10px' }}>
+                        <Button type="link" href="/profile">Chỉnh sửa thông tin</Button>
                     </div>
-                </form>
-            </div>
-        </div>
+                </Card>
+
+                {/* Danh sách đơn hàng */}
+                <Title level={4} style={{ marginTop: 30, marginBottom: 15 }}>Danh sách đơn hàng đã đặt</Title>
+                <List
+                    grid={{ gutter: 16, xs: 1, sm: 1, md: 1, lg: 1, xl: 1, xxl: 1 }} // Luôn hiển thị 1 card mỗi dòng
+                    dataSource={userOrders}
+                    loading={loadingOrders}
+                    className={styles.orderList}
+                    locale={{ emptyText: 'Bạn chưa có đơn hàng nào.' }}
+                    renderItem={item => (
+                        <List.Item>
+                            <Card 
+                                className={styles.orderCard}
+                                title={
+                                    <Space size="middle">
+                                        <span>Mã đơn: <Text strong copyable={{text: item._id}}>{item._id}</Text></span>
+                                        <Divider type="vertical" />
+                                        <span>Ngày đặt: <Text type="secondary">{formatDate(item.createdAt)}</Text></span>
+                                    </Space>
+                                }
+                                extra={<PaymentStatusTag status={item.paymentStatus} />}
+                            >
+                                <Table
+                                    columns={itemColumns}
+                                    dataSource={item.items || []}
+                                    rowKey={(record) => record._id || record.productId?._id + record.variant?.color}
+                                    pagination={false}
+                                    size="small"
+                                    className={styles.orderItemsTable}
+                                    summary={(pageData) => {
+                                        // Tính tổng tiền hàng trong summary
+                                        let sum = pageData.reduce((acc, currentItem) => {
+                                            const price = currentItem.price || currentItem.productId?.price || 0;
+                                            const sale = currentItem.sale || currentItem.variant?.sale || 0;
+                                            const quantity = currentItem.quantity || 0;
+                                            const discountedPrice = price * (100 - sale) / 100;
+                                            return acc + (discountedPrice * quantity);
+                                        }, 0);
+                                        return (
+                                            <Table.Summary.Row>
+                                                <Table.Summary.Cell index={0} colSpan={4}><strong>Tổng tiền hàng</strong></Table.Summary.Cell>
+                                                <Table.Summary.Cell index={1} align="right"><strong>{formatCurrency(sum)}</strong></Table.Summary.Cell>
+                                            </Table.Summary.Row>
+                                        );
+                                    }}
+                                />
+                                <div className={styles.orderFooter}>
+                                    <Space>
+                                        <Text strong>Trạng thái:</Text>
+                                        <DeliveryStatusTag status={item.orderStatus} />
+                                    </Space>
+                                    <Space>
+                                        {/* Chỉ hiển thị nút Hủy khi đơn hàng đang xử lý */}
+                                        {item.orderStatus === 'Processing' && (
+                                            <Button 
+                                                danger 
+                                                icon={<StopOutlined />} 
+                                                onClick={() => handleCancelOrder(item._id)}
+                                                size="small"
+                                                className={styles.actionButton}
+                                            >
+                                                Hủy đơn
+                                            </Button>
+                                        )}
+                                    </Space>
+                                </div>
+                            </Card>
+                        </List.Item>
+                    )}
+                />
+            </Content>
+        </Layout>
     );
 };
 

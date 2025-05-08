@@ -1,0 +1,112 @@
+/* AdminOrder.module.css */
+
+.adminOrderContainer {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+  }
+  
+  .headerActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .pageTitle {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+  .pageTitleIcon {
+      margin-right: 10px;
+      color: #1890ff;
+      font-size: 24px;
+  }
+  
+  /* Table Styles */
+  .orderTable :global(.ant-table-thead > tr > th) {
+    background-color: #fafafa !important;
+    font-weight: 600;
+    color: #595959;
+    padding: 12px 16px !important;
+  }
+  
+  .orderTable :global(.ant-table-tbody > tr > td) {
+    padding: 10px 16px !important; /* Giảm padding dọc một chút */
+    vertical-align: middle;
+  }
+  
+  .orderTable :global(.ant-table-tbody > tr.ant-table-row-hover > td),
+  .orderTable :global(.ant-table-tbody > tr:hover > td) {
+    background-color: #f5f5f5 !important;
+  }
+  
+  .orderTable :global(.ant-tag) {
+      margin: 0; /* Bỏ margin mặc định của Tag */
+  }
+  
+  /* Filter dropdown (Giữ nguyên từ trước nếu có) */
+  .filterDropdown {
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  }
+  .filterDropdown input { margin-bottom: 10px; }
+  .filterDropdown .ant-space-item .ant-btn { min-width: 80px; }
+  
+  
+  /* --- OrderDetails Modal --- */
+  .orderDetailsModal :global(.ant-modal-body) {
+      padding: 0; /* Bỏ padding mặc định để Descriptions chiếm full width */
+  }
+  
+  .orderDetailsCard {
+      border: none; /* Bỏ border nếu dùng Card */
+  }
+  
+  /* Style cho Descriptions trong Modal */
+  .orderDetailsDescriptions :global(.ant-descriptions-item-label) {
+      font-weight: 500;
+      color: rgba(0,0,0,.65);
+      width: 150px; /* Điều chỉnh độ rộng label */
+  }
+  .orderDetailsDescriptions :global(.ant-descriptions-item-label .anticon){
+      margin-right: 8px;
+      color: #1890ff;
+  }
+  .orderDetailsDescriptions :global(.ant-descriptions-item-content) {
+      font-weight: 500;
+  }
+  
+  /* Style cho Table sản phẩm trong Modal */
+  .orderItemsTable :global(.ant-table) {
+      margin-top: 16px;
+  }
+  .orderItemsTable :global(.ant-table-thead > tr > th) {
+    background-color: #fafafa !important;
+    padding: 10px 12px !important;
+  }
+  .orderItemsTable :global(.ant-table-tbody > tr > td) {
+    padding: 10px 12px !important;
+  }
+  .orderItemsTable :global(.ant-table-summary > tr > td) {
+      background-color: #fafafa !important;
+      font-weight: 600;
+      padding: 10px 12px !important;
+  }
+  
+  /* Style cho phần cập nhật trạng thái */
+  .statusUpdateSection {
+      margin-top: 24px;
+      padding: 16px 24px;
+      border-top: 1px solid #f0f0f0;
+      background-color: #fbfbfb;
+  }
+  .statusUpdateSection :global(.ant-row) {
+      align-items: center;
+  }

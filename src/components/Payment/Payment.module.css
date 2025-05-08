@@ -1,64 +1,147 @@
-.paymentPopupContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.paymentContent {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.3); 
-  z-index: 10000;
+  padding: 20px 0;
+}
+
+.qrCodeImage {
+  width: 250px;
+  height: 250px;
+  margin-bottom: 20px;
+  border: 1px solid #f0f0f0;
+  padding: 5px;
+  background-color: #fff;
+}
+
+.paymentInstruction {
+  font-size: 16px !important;
+  color: #555;
+  margin-bottom: 8px !important;
+  text-align: center;
+}
+
+.paymentAmount {
+  font-size: 22px !important;
+  color: #d70018 !important;
+  font-weight: 600 !important;
+  margin-bottom: 25px !important;
+}
+
+.paymentActions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.confirmButton {
+  /* Style nút xác nhận nếu cần */
+}
+
+.cancelButton {
+  /* Style nút hủy nếu cần */
+}
+
+.paymentPopupContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .paymentPopup {
-  background-color: var(--bg-color); 
-  border-radius: 15px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  padding: 18px 18px 12px 18px;
+  margin: 0 auto;
 }
 
 .popupContent {
-  text-align: center;
-  height: 83vh;
-}
-
-.popupContent p {
-  font-size: 26px;
-  padding: 10px;
-  color: red;
-  font-weight: bold;
-}
-
-.popupContent img {
-  width: 23vw;
-  height: auto;
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .buttonClose {
-  width: 40px;
-  height: 40px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
   border: none;
-  margin-left: auto;
-  display: block;
-  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.popupContent img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.popupContent p {
+  margin: 10px 0 8px 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.buttonPopup {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  margin-top: 8px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 .popupBox {
+  width: 100%;
   display: flex;
   justify-content: center;
 }
 
-.buttonPopup {
-  background-color: #10b033;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 18px;
+.paymentRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-width: 350px;
+  min-height: 220px;
 }
 
-.buttonPopup:hover {
-  background-color: #0f9a2d;
+.qrCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infoCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+}
+
+.paymentTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.paymentAmount {
+  font-size: 22px !important;
+  color: #d70018 !important;
+  font-weight: 600 !important;
+  margin-bottom: 18px !important;
 }

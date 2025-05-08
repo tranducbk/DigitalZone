@@ -1,0 +1,78 @@
+/* Search.module.css */
+
+.searchContainer {
+  position: relative; /* Cần thiết cho dropdown tuyệt đối */
+  width: 85%; /* Chiếm không gian trong header */
+  max-width: 500px; /* Giới hạn chiều rộng */
+}
+
+/* Style cho dropdown của AutoComplete */
+.searchResultsDropdown :global(.ant-select-dropdown) { 
+  /* Target dropdown tổng thể */
+  padding: 0 !important; /* Bỏ padding mặc định */
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 60vh; /* Giới hạn chiều cao dropdown */
+  overflow-y: auto;
+}
+
+/* Style cho từng option trong dropdown */
+.searchResultsDropdown :global(.ant-select-item-option) {
+  padding: 0 !important; /* Bỏ padding mặc định của option */
+  margin: 0 !important;
+  border-bottom: 1px solid #f0f0f0; /* Đường kẻ phân cách */
+}
+.searchResultsDropdown :global(.ant-select-item-option):last-child {
+  border-bottom: none; /* Bỏ đường kẻ cho item cuối */
+}
+
+/* Style cho option khi được hover hoặc focus */
+.searchResultsDropdown :global(.ant-select-item-option-active):not(:global(.ant-select-item-option-disabled)),
+.searchResultsDropdown :global(.ant-select-item-option-selected):not(:global(.ant-select-item-option-disabled)) {
+  background-color: #f5f5f5 !important; /* Màu nền khi hover/chọn */
+}
+
+/* Style cho nội dung bên trong option (component ItemSearch) */
+.searchResultsDropdown :global(.ant-select-item-option-content) {
+  /* CSS cho div bao quanh ItemSearch nếu cần */
+}
+
+
+.noScroll {
+    overflow: hidden;
+}
+
+/* Nếu vẫn muốn hiệu ứng overlay mờ nền */
+.searchOverlay {
+position: fixed;
+top: 64px; /* Hoặc top: 64px; nếu header cao 64px */
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(0, 0, 0, 0.4);
+z-index: 999; /* Dưới dropdown (thường là 1050+) */
+animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+
+.searchContainer :global(.ant-input-search-button) {
+  background-color: #bd5454 !important; /* Xanh thiên thanh */
+  color: #fff !important;
+  border: none !important;
+  transition: background 0.3s;
+}
+.searchContainer :global(.ant-input-search-button):hover,
+.searchContainer :global(.ant-input-search-button):focus {
+  background-color: #691212 !important; /* Đậm hơn khi hover */
+  color: #fff !important;
+}
+
+.searchContainer :global(.ant-select.ant-select-outlined.ant-select-auto-complete.css-dev-only-do-not-override-apn68.ant-select-single.ant-select-customize-input.ant-select-show-search) {
+  width: 100%;
+  max-width: 500px;
+  margin: 19px 0px;
+}

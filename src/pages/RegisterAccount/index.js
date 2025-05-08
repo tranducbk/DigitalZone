@@ -1,232 +1,257 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../firebaseConfig";
-import addressData from './address-data.json';
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import "./RegisterAccount.css";
-import { IoLogoGoogle } from "react-icons/io5";
+import { auth } from "../../firebaseConfig"; // Đảm bảo đường dẫn đúng
+import addressData from './address-data.json'; // Đảm bảo đường dẫn đúng
+import { Link, useNavigate } from "react-router-dom";
+import { Form, Input, Button, Select, Typography, message, Spin, Row, Col, Space, Divider } from 'antd'; // Import Antd components
+import { UserOutlined, PhoneOutlined, HomeOutlined, LockOutlined, MailOutlined, CheckCircleOutlined } from '@ant-design/icons'; // Import icons
+import styles from "./RegisterAccount.module.css"; // Import CSS Module đã cập nhật
 import apiService from "../../api/api";
 
+const { Title, Text, Link: AntLink } = Typography;
+const { Option } = Select;
+
 export default function RegisterPage() {
-    const [phonenumber, setPhonenumber] = useState("");
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [rePassword, setRePassword] = useState("");
-    // const [diaChi, setDiaChi] = useState("");
-    const [errors, setErrors] = useState({});
+    const [form] = Form.useForm(); // Antd Form instance
     const navigate = useNavigate();
     const [successMessage, setSuccessMessage] = useState("");
+    const [loading, setLoading] = useState(false); // Loading state for submit
 
-    const citisRef = useRef(null);
-    const districtsRef = useRef(null);
-    const wardsRef = useRef(null);
+    // State cho address dropdowns
+    const [cities, setCities] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [selectedCity, setSelectedCity] = useState(null);
+    const [selectedDistrict, setSelectedDistrict] = useState(null);
 
+    // Load danh sách thành phố ban đầu
     useEffect(() => {
-        renderCity(addressData);
+        setCities(addressData.map(city => ({ id: city.Id, name: city.Name })));
     }, []);
 
-    const renderCity = (data) => {
-        data.forEach((x) => {
-            citisRef.current.options[citisRef.current.options.length] = new Option(x.Name, x.Id);
-        });
+    // Xử lý khi chọn Tỉnh/Thành phố
+    const handleCityChange = (cityId) => {
+        const selectedCityData = addressData.find(city => city.Id === cityId);
+        setDistricts(selectedCityData ? selectedCityData.Districts.map(d => ({ id: d.Id, name: d.Name })) : []);
+        setWards([]); // Reset phường/xã
+        form.setFieldsValue({ district: undefined, ward: undefined }); // Reset giá trị form
+        setSelectedCity(cityId);
+        setSelectedDistrict(null);
     };
 
-    const handleCityChange = () => {
-        districtsRef.current.length = 1;
-        wardsRef.current.length = 1;
-        if (citisRef.current.value !== "") {
-            const result = addressData.filter((n) => n.Id === citisRef.current.value);
-            result[0].Districts.forEach((k) => {
-                districtsRef.current.options[districtsRef.current.options.length] = new Option(k.Name, k.Id);
-            });
-        }
-    };
-
-    const handleDistrictChange = () => {
-        wardsRef.current.length = 1;
-        if (districtsRef.current.value !== "") {
-            const dataCity = addressData.filter((n) => n.Id === citisRef.current.value);
-            const dataWards = dataCity[0].Districts.filter((n) => n.Id === districtsRef.current.value)[0].Wards;
-            dataWards.forEach((w) => {
-                wardsRef.current.options[wardsRef.current.options.length] = new Option(w.Name, w.Id);
-            });
+    // Xử lý khi chọn Quận/Huyện
+    const handleDistrictChange = (districtId) => {
+        if (selectedCity) {
+            const selectedCityData = addressData.find(city => city.Id === selectedCity);
+            const selectedDistrictData = selectedCityData?.Districts.find(d => d.Id === districtId);
+            setWards(selectedDistrictData ? selectedDistrictData.Wards.map(w => ({ id: w.Id, name: w.Name })) : []);
+            form.setFieldsValue({ ward: undefined }); // Reset giá trị form
+            setSelectedDistrict(districtId);
         }
     };
 
-    const validatePhoneNumber = (phoneNumber) => {
-        return /^(0)[3|5|7|8|9][0-9]{8}$/.test(phoneNumber);
+    // Validator cho số điện thoại
+    const validatePhoneNumber = (_, value) => {
+        if (!value) return Promise.reject(new Error('Vui lòng nhập số điện thoại!'));
+        if (!/^(0)[3|5|7|8|9][0-9]{8}$/.test(value)) return Promise.reject(new Error('Số điện thoại không hợp lệ!'));
+        return Promise.resolve();
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    // Xử lý submit form đăng ký
+    const onFinish = async (values) => {
+        setLoading(true);
+        setSuccessMessage(""); // Clear success message cũ
+        try {
+            // Lấy tên từ ID đã chọn
+            const cityName = cities.find(c => c.id === values.city)?.name;
+            const districtName = districts.find(d => d.id === values.district)?.name;
+            const wardName = wards.find(w => w.id === values.ward)?.name;
 
-        const validationErrors = {};
-        if (!phonenumber) {
-            validationErrors.phonenumber = "Hãy nhập số điện thoại!";
-        } else if (!validatePhoneNumber(phonenumber)) {
-            validationErrors.phonenumber = "Số điện thoại không hợp lệ!";
-        }
-        if (!username) {
-            validationErrors.username = "Hãy tạo tên người dùng!";
-        }
-        if (!password) {
-            validationErrors.password = "Hãy tạo mật khẩu!";
-        }
-        if(password.length < 6){
-            validationErrors.password = "Mật khẩu phải có ít nhất 6 ký tự!";
-        }
-        if (!rePassword) {
-            validationErrors.rePassword = "Hãy xác nhận mật khẩu!";
-        } else if (password !== rePassword) {
-            validationErrors.rePassword = "Hãy xác nhận lại mật khẩu!";
-        }
-        if (!citisRef.current.value || !districtsRef.current.value || !wardsRef.current.value) {
-            validationErrors.diaChi = "Hãy chọn địa chỉ!";
-        }
-
-        setErrors(validationErrors);
-        if (Object.keys(validationErrors).length === 0) {
+            if (!cityName || !districtName || !wardName) {
+                 message.error('Vui lòng chọn đầy đủ địa chỉ!');
+                 setLoading(false);
+                 return;
+            }
 
             const newUser = {
-                userName: username,
-                phoneNumber: phonenumber,
-                email: "",
-                password: password,
+                userName: values.username,
+                phoneNumber: values.phonenumber,
+                email: "", // Có thể thêm field email nếu cần
+                password: values.password,
                 diaChi: {
-                    city: citisRef.current.options[citisRef.current.selectedIndex].text,
-                    district: districtsRef.current.options[districtsRef.current.selectedIndex].text,
-                    ward: wardsRef.current.options[wardsRef.current.selectedIndex].text,
+                    city: cityName,
+                    district: districtName,
+                    ward: wardName,
                 }
             };
 
-            console.log('newUser: ', newUser);
+            console.log('Registering user data:', newUser);
             
+            const response = await apiService.registerUser(newUser);
 
-            const savedUser = await apiService.registerUser(newUser);
-            
-            console.log('User saved after call api successfully:', savedUser);
+            console.log('API Response:', response); // Log response để debug
 
-            if (savedUser) {
-                console.log('User saved successfully:', savedUser);
-                setSuccessMessage("Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...");
+            if (response.data && (response.data.success || response.status === 201 || response.status === 200)) { // Kiểm tra các trạng thái thành công có thể có
+                setSuccessMessage("Đăng ký thành công! Đang chuyển hướng...");
+                message.success("Đăng ký thành công!"); // Hiển thị message Antd
                 setTimeout(() => {
                     navigate('/login');
                 }, 2000);
             } else {
-                console.log('Đã xảy ra lỗi khi thêm người dùng.');
+                // Hiển thị lỗi cụ thể từ API nếu có
+                 if (response.data && response.data.message === "Người dùng đã tồn tại!") {
+                     form.setFields([{ name: 'phonenumber', errors: ['Số điện thoại đã được sử dụng!'] }]);
+                 } else {
+                    message.error(response.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+                 }
             }
+        } catch (error) {
+            console.error('Lỗi đăng ký:', error);
+            // Hiển thị lỗi cụ thể từ response nếu có
+             if (error.response && error.response.data && error.response.data.message === "Người dùng đã tồn tại!") {
+                form.setFields([{ name: 'phonenumber', errors: ['Số điện thoại đã được sử dụng!'] }]);
+             } else {
+                 message.error('Đã có lỗi xảy ra khi đăng ký. Vui lòng thử lại.');
+             }
+        } finally {
+            setLoading(false);
         }
     };
 
-    // const addUser = async (newUser) => {
-    //     try {
-    //         const response = await apiService.registerUser(newUser);
-    //        console.log('Response from API registerUser:', response);
-    //         if (response.data.success) {
-    //             return response.data.user;
-    //         } else {
-    //             if (response.data.message === "Người dùng đã tồn tại!") {
-    //                 setErrors((prevErrors) => ({
-    //                     ...prevErrors,
-    //                     phonenumber: "Số điện thoại đã được sử dụng!",
-    //                 }));
-    //             }
-                
-    //         }
-    //     } catch (error) {
-    //         console.error('Error occurred while registering user:', error);
-    //         setErrors({ apiError: "Đã có lỗi xảy ra. Vui lòng thử lại sau." });
-    //         return null;
-    //     }
-    // };
-
-    const handleRegisterGoogle = async () => {
-        const provider = new GoogleAuthProvider();
-    
-        const res = await signInWithPopup(auth, provider);
-        const user = res.user;
-        console.log( 'handleRegisterGoogle: ', res);
-        const userData = {
-            tokenGoogle: user.accessToken,
-            userName: user.displayName,
-            email: user.email,
-            phonenumber: null,
-        };
-
-        const savedUser = await apiService.registerGoogle(userData);
-        console.log( 'savedUser: ', savedUser);
-            
-            console.log('User saved successfully:', savedUser);
-
-            if (savedUser) {
-                console.log('User saved successfully:', savedUser);
-                setSuccessMessage("Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...");
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
-            } else {
-                console.log('Đã xảy ra lỗi khi thêm người dùng.');
-            }
+     const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
     };
 
+    // TODO: Implement handleLoginGoogle if needed on register page
+
     return (
-        <div className="register-container">
-            <div className="login-form">
-                <div className="title">Chào mừng quay lại với <span className="app-name">DigitalZone</span></div>
-                <div className="subtitle">Tạo tài khoản của bạn</div>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-container">
-                        <div>
-                            <label htmlFor="phonenumber">Số điện thoại:</label>
-                            <input type="text" id="phonenumber" value={phonenumber} onChange={(e) => setPhonenumber(e.target.value)} />
-                        </div>
-                        {errors.phonenumber && <div className="error">{errors.phonenumber}</div>}
+        <div className={styles.registerPageContainer}>
+            <div className={styles.registerFormContainer}>
+                <Title level={3} className={styles.registerTitle}>
+                    Tạo tài khoản <span className={styles.appName}>DigitalZone</span>
+                </Title>
+                <Form
+                    form={form}
+                    name="register"
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    layout="vertical"
+                    className={styles.registerForm}
+                    requiredMark={false}
+                >
+                    <Form.Item
+                        label="Số điện thoại"
+                        name="phonenumber"
+                        rules={[{ validator: validatePhoneNumber }]}
+                        hasFeedback
+                    >
+                        <Input prefix={<PhoneOutlined />} placeholder="Nhập số điện thoại" size="large"/>
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Tên người dùng"
+                        name="username"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
+                    >
+                        <Input prefix={<UserOutlined />} placeholder="Tên bạn muốn hiển thị" size="large"/>
+                    </Form.Item>
+
+                     <Form.Item
+                        label="Địa chỉ"
+                        required // Đánh dấu là bắt buộc ở label
+                        style={{ marginBottom: 0 }} // Giảm margin dưới của label chung
+                     >
+                        {/* Đặt các Select trong một Row để dễ quản lý */}
+                        <Space direction="vertical" style={{width: '100%'}}> 
+                             <Row gutter={10} className={styles.addressSelectGroup}>
+                                <Col span={8}>
+                                    <Form.Item 
+                                        name="city" 
+                                        noStyle 
+                                        rules={[{ required: true, message: 'Chọn Tỉnh/TP!' }]}
+                                    >
+                                        <Select placeholder="Tỉnh/Thành phố" onChange={handleCityChange} size="large" showSearch filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}>
+                                            {cities.map(city => <Option key={city.id} value={city.id}>{city.name}</Option>)}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={8}>
+                                    <Form.Item 
+                                        name="district" 
+                                        noStyle 
+                                        rules={[{ required: true, message: 'Chọn Quận/Huyện!' }]}
+                                    >
+                                        <Select placeholder="Quận/Huyện" onChange={handleDistrictChange} disabled={!selectedCity} size="large" showSearch filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}>
+                                            {districts.map(district => <Option key={district.id} value={district.id}>{district.name}</Option>)}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={8}>
+                                     <Form.Item 
+                                        name="ward" 
+                                        noStyle 
+                                        rules={[{ required: true, message: 'Chọn Phường/Xã!' }]}
+                                    >
+                                        <Select placeholder="Phường/Xã" disabled={!selectedDistrict} size="large" showSearch filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}>
+                                            {wards.map(ward => <Option key={ward.id} value={ward.id}>{ward.name}</Option>)}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                             {/* Hiển thị lỗi chung cho địa chỉ nếu cần */}
+                             {/* <Form.ErrorList errors={form.getFieldError('city') || form.getFieldError('district') || form.getFieldError('ward')} /> */}
+                         </Space>
+                    </Form.Item>
+
+
+                    <Form.Item
+                        label="Mật khẩu"
+                        name="password"
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                            { min: 6, message: "Mật khẩu cần ít nhất 6 ký tự." }
+                        ]}
+                        hasFeedback
+                    >
+                        <Input.Password prefix={<LockOutlined />} placeholder="Ít nhất 6 ký tự" size="large"/>
+                    </Form.Item>
+
+                     <Form.Item
+                        label="Xác nhận mật khẩu"
+                        name="rePassword"
+                        dependencies={['password']} // Phụ thuộc vào trường password
+                        hasFeedback
+                        rules={[
+                            { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+                            ({ getFieldValue }) => ({ // Validator tùy chỉnh
+                                validator(_, value) {
+                                if (!value || getFieldValue('password') === value) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu" size="large"/>
+                    </Form.Item>
+
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" className={styles.submitButtonPrimary} loading={loading} size="large">
+                            Tạo tài khoản
+                        </Button>
+                    </Form.Item>
+                    
+                     {/* Hiển thị thông báo thành công */}
+                    {successMessage && <div className={styles.successMessage}><CheckCircleOutlined /> {successMessage}</div>}
+
+                    <Divider />
+
+                    <div className={styles.loginLink}>
+                        Bạn đã có tài khoản? <Link to="/login">Đăng nhập ngay!</Link>
                     </div>
-                    <div className="input-container">
-                        <div>
-                            <label htmlFor="username">Tạo tên người dùng:</label>
-                            <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                        </div>
-                        {errors.username && <div className="error">{errors.username}</div>}
-                    </div>
-                    <div className="input-container">
-                        <label htmlFor="address">Địa chỉ:</label>
-                        <div className="select-container">
-                            <select className="form-select" id="city" ref={citisRef} onChange={handleCityChange}>
-                                <option value="">Tỉnh/Thành phố</option>
-                            </select>
-                            <select className="form-select" id="district" ref={districtsRef} onChange={handleDistrictChange}>
-                                <option value="">Quận/huyện</option>
-                            </select>
-                            <select className="form-select" id="ward" ref={wardsRef}>
-                                <option value="">Phường/xã</option>
-                            </select>
-                        </div>
-                        {errors.diaChi && <div className="error">{errors.diaChi}</div>}
-                    </div>
-                    <div className="input-container">
-                        <div>
-                            <label htmlFor="password">Mật khẩu:</label>
-                            <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                        </div>
-                        {errors.password && <div className="error">{errors.password}</div>}
-                    </div>
-                    <div className="input-container">
-                        <div>
-                            <label htmlFor="re-password">Xác nhận mật khẩu:</label>
-                            <input type="password" id="re-password" value={rePassword} onChange={(e) => setRePassword(e.target.value)} />
-                        </div>
-                        {errors.rePassword && <div className="error">{errors.rePassword}</div>}
-                    </div>
-                    <div className="signup-link">Bạn đã có tài khoản?
-                        <Link to="/login"> Đăng nhập ngay!</Link>
-                    </div>
-                    <button type="submit">Tạo tài khoản</button>
-                </form>
-                <button type="submit" className="button-google-submit" onClick={handleRegisterGoogle}><div className="icon-gg"><IoLogoGoogle /></div>Đăng kí bằng Google</button>
-                {successMessage && <div className="success-message">{successMessage}</div>}
-                {errors.apiError && <div className="error">{errors.apiError}</div>} {/* Display API error */}
+                </Form>
             </div>
         </div>
     );

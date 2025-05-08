@@ -1,127 +1,59 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import './MenuBar.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
-import { PiTelevision } from "react-icons/pi";
-import { FaTools } from "react-icons/fa";
-import { IoPhonePortraitOutline } from "react-icons/io5";
-import { FaLaptop } from "react-icons/fa";
-import { CiHeadphones } from "react-icons/ci";
-import { FaKeyboard } from "react-icons/fa";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import styles from './MenuBar.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { PiTelevisionSimpleBold } from "react-icons/pi";
+import { IoPhonePortraitOutline, IoLaptopOutline } from 'react-icons/io5';
 import { FaMouse } from "react-icons/fa";
-function MenuBar() {
+import { BsKeyboard } from "react-icons/bs";
+import { FaHeadphones } from 'react-icons/fa';
+import { MdCable } from 'react-icons/md';
+
+const menuItems = [
+  { path: '/điện-thoại', label: 'Điện thoại', Icon: IoPhonePortraitOutline },
+  { path: '/bàn-phím', label: 'Bàn phím', Icon: BsKeyboard },
+  { path: '/laptop', label: 'Laptop', Icon: IoLaptopOutline },
+  { path: '/tivi', label: 'TV', Icon: PiTelevisionSimpleBold },
+  { path: '/chuột', label: 'Chuột', Icon: FaMouse },
+  { path: '/phụ-kiện', label: 'Phụ kiện', Icon: MdCable },
+  { path: '/tai-nghe', label: 'Tai nghe', Icon: FaHeadphones },
+];
+
+function MenuBar({ onClose }) {
+  const handleClick = () => {
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  };
+
   return (
-    <>
-      <div className='menu-bar'>
-        <div className="label-menu-bar">
-          <Link to='/điện thoại'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                  <IoPhonePortraitOutline style={{fontSize:'27px'}}/>
+    <div className={styles.menuBarVertical}>
+      <nav>
+        <ul>
+          {menuItems.map((item) => (
+            <li key={item.path}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  isActive ? `${styles.menuLink} ${styles.active}` : styles.menuLink
+                }
+                onClick={handleClick}
+              >
+                <div className={styles.menuItemContent}>
+                  <span className={styles.categoryIcon}>
+                    <item.Icon />
+                  </span>
+                  <span className={styles.itemLabel}>{item.label}</span>
                 </div>
-                <span className='item-link'>Điện thoại</span>
-              </div>
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className="label-menu-bar">
-          <Link to='/laptop'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                  <FaLaptop style={{fontSize:'27px'}}/>
-                </div>
-                <span className='item-link'>Laptop</span>
-              </div>
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className="label-menu-bar">
-          <Link to='/tai nghe'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                  <CiHeadphones  style={{fontSize:'27px'}}/>
-                </div>
-                <span className='item-link'>Tai Nghe</span>
-              </div>
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className="label-menu-bar">
-          <Link to='/bàn phím'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                  <FaKeyboard style={{fontSize:'27px'}} />
-                </div>
-                <span className='item-link'>Bàn Phím</span>
-              </div>
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className="label-menu-bar">
-          <Link to='/chuột'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                  <FaMouse style={{fontSize:'27px'}}/>
-                </div>
-                <span className='item-link'>Chuột</span>
-              </div>
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className="label-menu-bar">
-          <Link to='/phụ kiện'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                <FaTools style={{fontSize:'27px'}} />
-                </div>
-                <span style={{textDecoration:'none'}} className='item-link'>Phụ Kiện</span>
-              </div> 
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-        <div className="label-menu-bar">
-          <Link to='/tivi'>
-            <div className="label-item">
-              <div className="item-content">
-                <div className="category-icon">
-                  <PiTelevision style={{fontSize:'27px'}} />
-                </div>
-                <span className='item-link'>Ti Vi</span>
-              </div>
-              <div className='right-icon'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-    </>
-  )
+                <FontAwesomeIcon icon={faChevronRight} className={styles.rightIcon} />
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  );
 }
 
 export default MenuBar;

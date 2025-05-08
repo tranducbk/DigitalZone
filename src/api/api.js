@@ -51,7 +51,7 @@ const apiService = {
   registerUser: (newUser) => apiInstance.post("/register", newUser),
   loginUser: (user) => apiInstance.post("/login", user),
   registerGoogle: (user) => apiInstance.post("/register-google", user),
-  loginGoogle: (user) => apiInstance.post("/login-google", user),
+  loginGoogle: (data) => apiInstance.post("/login-google", data),
   getUserProfile: () => apiInstance.get("/profile"),
   getProducts: () => apiInstance.get("/product"),
   updateUserProfile: (userId, userData) => {
@@ -63,8 +63,15 @@ const apiService = {
 
   // **Product APIs**//
   getProductById: (productId) => apiInstance.get(`/product/${productId}`),
-  // Lấy danh sách sản phẩm liên quan
   getRelatedProducts: (productId) => apiInstance.get(`/product/${productId}/related`),
+  getAllCategories: () => apiInstance.get("/product/categories"),
+  getAllBrands: () => apiInstance.get("/product/brands"),
+  addBrand: (brand) => apiInstance.post("/product/brands", { brand }),
+  addCategory: (category) => apiInstance.post("/product/categories", { category }),
+  updateBrand: (brandId, brandData) => apiInstance.put(`/product/brands/${brandId}`, brandData),
+  deleteBrand: (brandId) => apiInstance.delete(`/product/brands/${brandId}`),
+  updateCategory: (categoryId, categoryData) => apiInstance.put(`/product/categories/${categoryId}`, categoryData),
+  deleteCategory: (categoryId) => apiInstance.delete(`/product/categories/${categoryId}`),
 
   // **Order APIs** 
   createOrder: (orderData) => apiInstance.post("/orders", orderData),
@@ -86,6 +93,8 @@ const apiService = {
   // **Admin User Management**
   getAllUsers: () => apiInstance.get("/admin/users"),
   deleteUser: (userId) => apiInstance.delete(`/admin/users/${userId}`),
+  updateUser: (userId, userData) => apiInstance.put(`/admin/users/${userId}`, userData),
+  getUserById: (userId) => apiInstance.get(`/admin/users/${userId}`),
 
   // **Admin Product Management**
   getAllProducts: () => apiInstance.get("/admin/products"),

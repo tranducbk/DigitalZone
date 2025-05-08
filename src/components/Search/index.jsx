@@ -1,152 +1,166 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { Spin } from 'antd';
-import "./Search.css";
-import HeadlessTippy from "@tippyjs/react/headless";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Input, Spin, AutoComplete, Typography, message, Button } from 'antd'; // Thêm Button vào import
+import { SearchOutlined } from '@ant-design/icons';
+import styles from './Search.module.css';
 import ItemSearch from "../ItemSearch/ItemSearch";
 import apiService from "../../api/api";
-import unidecode from 'unidecode';
+import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
+const { Text } = Typography;
+
+const removeVietnameseTones = (str) => {
+  if (!str) return "";
+  return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+};
 
 function Search() {
     const [searchValue, setSearchValue] = useState('');
-    const [searchResult, setSearchResult] = useState([]);
-    const [showResult, setShowResult] = useState(false);
-    const [loading, setLoading] = useState(false); // Trạng thái loading
-    const inputRef = useRef();
+    const [options, setOptions] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const navigate = useNavigate();
+    const searchRef = useRef(null);
 
-    const removeVietnameseTones = (str) => {
-      // Thay thế các ký tự có dấu bằng ký tự không dấu
-      return str
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d") // Thay thế 'đ' bằng 'd'
-          .replace(/Đ/g, "D"); // Thay thế 'Đ' bằng 'D'
-  };
-
-    // Hàm xóa input
-    const handleClear = () => {
-        setSearchValue('');
-        setSearchResult([]);
-        inputRef.current.focus();
-    };
-
-    // Ẩn kết quả
-    const handleHideResult = () => {
-        setShowResult(false);
-    };
-
-    // Gọi API để lấy sản phẩm khi từ khóa thay đổi
+    // Thêm hiệu ứng khóa cuộn body khi dropdown hiện
     useEffect(() => {
-      if (!searchValue.trim()) {
-          setSearchResult([]);
-          setShowResult(false);
-          return;
-      }
-  
-      const fetchProducts = async () => {
-          setLoading(true);
-          try {
-              // Gọi API để lấy danh sách sản phẩm
-              const response = await apiService.getProducts();
-              const products = response.data.products || [];
-  
-              // Lọc sản phẩm dựa trên searchValue
-              const filteredResults = products.filter((product) => {
-                // Loại bỏ dấu từ tên sản phẩm và từ khóa tìm kiếm
-                const name = removeVietnameseTones(product.name.toLowerCase()); // Chuyển tên về chữ thường và loại bỏ dấu
-                const search = removeVietnameseTones(searchValue.toLowerCase()); // Chuyển từ khóa tìm kiếm về chữ thường và loại bỏ dấu
-            
-                // Kiểm tra nếu `name` có chứa `search` dù chỉ một phần ký tự
-                return name.includes(search);
+        if (isDropdownVisible && searchValue.length > 0) {
+            document.body.classList.add('noScroll');
+        } else {
+            document.body.classList.remove('noScroll');
+        }
+        return () => {
+            document.body.classList.remove('noScroll');
+        };
+    }, [isDropdownVisible, searchValue]);
+
+    const fetchProducts = async (query) => {
+        if (!query.trim()) {
+            setOptions([]);
+            setIsDropdownVisible(false);
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await apiService.getProducts();
+            const products = response.data.products || [];
+
+            const filteredResults = products.filter((product) => {
+              const name = removeVietnameseTones(product.name.toLowerCase());
+              const search = removeVietnameseTones(query.toLowerCase());
+              return name.includes(search);
             });
 
-              console.log(filteredResults)
-  
-              // Cập nhật kết quả tìm kiếm
-              setSearchResult(filteredResults);
-              setShowResult(true);
-          } catch (error) {
-              console.error("Lỗi khi gọi API:", error);
-              setSearchResult([]);
-          } finally {
-              setLoading(false);
-          }
-      };
-  
-      const debounceFetch = setTimeout(fetchProducts, 500); // Debounce 500ms
-      return () => clearTimeout(debounceFetch);
-  }, [searchValue]);
-  
+            const formattedOptions = filteredResults.map(item => ({
+                key: item._id,
+                value: item.name,
+                label: (
+                    <div onClick={() => handleSelect(item._id)}>
+                        <ItemSearch
+                            id={item._id}
+                            name={item.name}
+                            image={item.variants && item.variants.length > 0 ? item.variants[0].image : null}
+                            sale={item.variants && item.variants.length > 0 ? item.variants[0].sale : 0}
+                            price={item.price}
+                            noResult={false}
+                        />
+                    </div>
+                ),
+            }));
+            
+            if (formattedOptions.length === 0) {
+                 setOptions([{ 
+                     key: 'no-result', 
+                     value: query,
+                     label: <div style={{ padding: '10px', textAlign: 'center', color: '#888' }}>Không tìm thấy kết quả nào.</div>,
+                     disabled: true
+                 }]);
+            } else {
+                setOptions(formattedOptions);
+            }
+            setIsDropdownVisible(true);
 
-    // Xử lý thay đổi input
-    const handleChange = (e) => {
-        const inputValue = e.target.value;
-        if (!inputValue.startsWith(' ')) {
-            setSearchValue(inputValue);
+        } catch (error) {
+            console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+            message.error("Có lỗi xảy ra khi tìm kiếm.");
+            setOptions([]);
+            setIsDropdownVisible(false);
+        } finally {
+            setLoading(false);
         }
     };
 
+    const debouncedFetchProducts = useCallback(debounce(fetchProducts, 500), []); 
+
+    const handleSearchChange = (value) => {
+        setSearchValue(value);
+        if (value) {
+            debouncedFetchProducts(value);
+        } else {
+            setOptions([]);
+            setIsDropdownVisible(false);
+            debouncedFetchProducts.cancel(); 
+        }
+    };
+
+    const handleSelect = (productId) => {
+        setSearchValue('');
+        setOptions([]);
+        setIsDropdownVisible(false);
+        navigate(`/product/${productId}`);
+    };
+    
+    const handleSearchSubmit = (value) => {
+        if(value.trim()){
+            console.log("Perform full search page navigation for:", value);
+             setIsDropdownVisible(false);
+             debouncedFetchProducts.cancel();
+        }
+    }
+
+     useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setIsDropdownVisible(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+
     return (
-        <div>
-            {showResult && <div className="overlay" onClick={handleHideResult}></div>}
-            <HeadlessTippy
-                interactive
-                placement="bottom"
-                visible={showResult}
-                render={(attrs) => (
-                    <div className="search-results" tabIndex="-1" {...attrs}>
-                        <div>
-                            {loading ? (
-                                <Spin style={{ height: "400px", width: "320px"}} />
-                            ) : searchResult.length === 0 ? (
-                                <ItemSearch noResult={true} />
-                            ) : (
-                                searchResult.map((item, index) => (
-                                    <div key={index} className="" onClick={handleClear}>
-                                        <ItemSearch
-                                            id={item._id}
-                                            name={item.name}
-                                            image={item.variants[0].image}
-                                            sale={item.variants[0].sale}
-                                            price={item.price}
-                                            noResult={false}
-                                        />
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                )}
-                onClickOutside={handleHideResult}
+        <div ref={searchRef} className={styles.searchContainer}>
+            {/* Overlay mờ khi dropdown hiện */}
+            {isDropdownVisible && searchValue.length > 0 && (
+                <div className={styles.searchOverlay} onClick={() => setIsDropdownVisible(false)} />
+            )}
+            <AutoComplete
+                dropdownClassName={styles.searchResultsDropdown}
+                options={options}
+                style={{ width: '100%', maxWidth: 500 }}
+                onSearch={handleSearchChange}
+                open={isDropdownVisible && searchValue.length > 0}
+                value={searchValue}
             >
-                <div className="search">
-                    <div>
-                        <form className="form-y" onSubmit={(e) => e.preventDefault()}>
-                            <input
-                                className="input-y"
-                                ref={inputRef}
-                                value={searchValue}
-                                placeholder="Tìm kiếm..."
-                                spellCheck={false}
-                                onChange={handleChange}
-                                onFocus={() => setShowResult(true)}
-                            />
-                        </form>
-                    </div>
-                    <div className="input-btn" style={{ marginLeft: 5 }}>
-                        <button
-                            className="button-y"
-                            type="submit"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => inputRef.current.focus()}
-                        >
-                            <FontAwesomeIcon icon={faMagnifyingGlass} height={40} />
-                        </button>
-                    </div>
-                </div>
-            </HeadlessTippy>
+                <Input.Search
+                    placeholder="Tìm kiếm sản phẩm..."
+                    enterButton={<Button icon={<SearchOutlined />} type="primary" />}
+                    loading={loading}
+                    value={searchValue}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onSearch={handleSearchSubmit}
+                    allowClear
+                    size="middle"
+                    onFocus={() => {if(options.length > 0) setIsDropdownVisible(true)}}
+                />
+            </AutoComplete>
         </div>
     );
 }

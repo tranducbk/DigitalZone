@@ -1,56 +1,43 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { signOut } from "firebase/auth";
-import { auth } from "../../firebaseConfig";
+import apiService from '../../api/api';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        try {
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                setIsLoggedIn(true);
-                const storedUser = localStorage.getItem('userID');
-                if (storedUser) {
-                    const parsedUser = JSON.parse(storedUser);
-                    if (parsedUser) {
-                        setUser(parsedUser);
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Failed to parse user from localStorage', error);
+        const token = localStorage.getItem('authToken');
+        const userId = localStorage.getItem('userId');
+        const role = localStorage.getItem('role');
+        const userData = JSON.parse(localStorage.getItem('user'));
+        if (token && userId && role && userData) {
+            setUser(userData);
+        } else {
+            setUser(null);
         }
+        setLoading(false);
     }, []);
 
-    const login = (user, token) => {
-        setUser(user);
-        setIsLoggedIn(true);
-        
+    const login = (role, token, userData) => {
+        setUser(userData);
         localStorage.setItem('authToken', token);
-        localStorage.setItem('user', user);
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('role', userData.role);
+        localStorage.setItem('userId', userData._id);
     };
 
     const logout = () => {
-        signOut(auth);
         setUser(null);
-        setIsLoggedIn(false);
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
-    };
-
-    const value = {
-        isLoggedIn,
-        user,
-        login,
-        logout
+        localStorage.removeItem('role');
+        localStorage.removeItem('userId');
     };
 
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

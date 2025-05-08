@@ -1,0 +1,228 @@
+.relatedProducts {
+    margin-bottom: 10px;
+    min-height: 250px;
+    margin-left: 60px;
+    margin-right: 60px;
+}
+
+.productListTitle {
+    margin-bottom: 2px;
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+.title {
+    display: block;
+    color: #363636;
+    font-size: 22px;
+    line-height: 40px;
+    margin-bottom: 0;
+    margin-right: 20px;
+    white-space: nowrap;
+}
+
+.title h2 {
+    font-size: 30px;
+    color: black;
+    margin: 30px;
+    transition: color 0.3s;
+}
+
+.title h2:hover {
+    color: #107ac2;
+}
+
+.swiperContainer {
+    padding: 0.5rem !important;
+    overflow-x: hidden;
+}
+
+/* Ẩn thanh cuộn ngang */
+.swiperContainer::-webkit-scrollbar {
+    display: none;
+}
+
+
+.productListSwiper .swiperContainer .swiperWrapper .swiperSlide {
+    border-radius: 15px;
+    height: auto;
+    box-shadow: none;
+    background-color: #fff;
+}
+
+.productListSwiper .swiperContainer .swiperWrapper .swiperSlide:hover {
+    background-color: #ffffff;
+    border-radius: 15px;
+    /* Bỏ hiệu ứng hover, không transform, không box-shadow */
+}
+
+.swiperButtonPrev, 
+.swiperButtonNext {
+    align-items: center;
+    background: #fff;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, .2);
+    display: flex;
+    font-size: 1.8rem;
+    height: 60px;
+    justify-content: center;
+    position: absolute;
+    opacity: .8;
+    outline: none;
+    top: 45%;
+    transition: .3s;
+    width: 30px;
+}
+
+.swiperButtonPrev {
+    left: 0;
+    border-radius: 0 100px 100px 0;
+}
+
+.swiperButtonNext {
+    right: 0;
+    border-radius: 100px 0 0 100px;
+}
+
+.swiperButtonPrev svg, 
+.swiperButtonNext svg {
+    color: #3a3a3a;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Hiển thị 5 sản phẩm trên màn hình có độ phân giải tối đa là 1400px */
+@media (max-width: 1200px) {
+    .swiperSlide {
+        width: calc(25% - 7.5px);
+    }    
+}
+
+@media (max-width: 990px) {
+    .swiperSlide {
+        width: calc(33.33333% - 6.66667px);
+    }    
+}
+
+@media (max-width: 717px) {
+    .swiperSlide {
+        width: calc(50% - 5px);
+    }
+}
+
+@media (max-width: 540px) {
+    .title {
+        font-size: 16px;
+    }
+}
+
+.productListSwiper .swiperContainer {
+    position: relative;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.swiperButtonPrev:hover,
+.swiperButtonNext:hover {
+    background-color: #92c0f2;
+}
+
+/* Hiệu ứng khi nhấn */
+.swiperButtonPrev:active,
+.swiperButtonNext:active {
+    opacity: 0.7;
+    transform: 1s;
+}
+
+.swiperWrapper {
+    display: flex;
+    gap: 0.8vw;
+    transition: transform 0.3s ease;
+    align-items: stretch;
+}
+
+.recommendedItem {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.recommendedItem:hover {
+    /* XÓA transform: translateY(-5px); */
+    /* XÓA box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); */
+}
+
+.recommendedItem .item-img {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.recommendedItem .item-img img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.recommendedItem .item-info {
+    padding: 10px;
+}
+
+.recommendedItem .item-name {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+    height: 40px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.recommendedItem .item-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.recommendedItem .price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d70018;
+}
+
+.recommendedItem .sale {
+    background-color: #d70018;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.recommendedItem .item-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffc107;
+}
+
+.recommendedItem .star-icon {
+    font-size: 14px;
+}
+
+.item-list {
+    min-height: 370px; /* hoặc giá trị phù hợp với giao diện của bạn */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.item-list-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+}

@@ -1,0 +1,221 @@
+/* UserProfile.module.css */
+
+.userProfileContainer {
+    width: 100%;
+    max-width: 700px; /* Giảm độ rộng tối đa một chút */
+    margin: 100px auto 40px auto; /* Thêm margin-top lớn hơn, ví dụ 100px */
+    padding: 0; /* Bỏ padding ở đây, để Card xử lý */
+    background-color: transparent; /* Nền sẽ do Card xử lý */
+    box-shadow: none; /* Bỏ shadow ở đây, để Card xử lý */
+  }
+  
+  .profileCard {
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    border: 1px solid #f0f0f0; /* Thêm border nhẹ */
+  }
+  
+  /* Tiêu đề Card */
+  .cardTitle {
+    font-weight: 600;
+    font-size: 22px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Khoảng cách giữa icon và text */
+  }
+  .cardTitleIcon {
+      color: #1890ff; /* Màu icon */
+  }
+  
+  /* Nút ở phần extra của Card */
+  .cardExtraButtons :global(.ant-btn) { /* Target nút Antd bên trong */
+      margin-left: 8px;
+  }
+  .cardExtraButtons :global(.ant-btn:first-child) {
+      margin-left: 0;
+  }
+  .cardExtraButtons :global(.ant-btn .anticon) {
+      margin-right: 6px; /* Khoảng cách icon và text trong nút */
+  }
+  
+  
+  /* Descriptions component */
+  .profileDescriptions :global(.ant-descriptions-item-label) {
+    font-weight: 500;
+    width: 180px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+  .profileDescriptions :global(.ant-descriptions-item-label .anticon) {
+    margin-right: 8px;
+    color: #1890ff;
+  }
+  .profileDescriptions :global(.ant-descriptions-item-content) {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.85);
+  }
+  .addressText { /* Class cho text địa chỉ */
+      white-space: normal; /* Cho phép xuống dòng nếu địa chỉ dài */
+  }
+  
+  /* --- Modal Styles --- */
+  .modalTitle {
+    text-align: center;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 24px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .modalTitleIcon {
+      color: #1890ff;
+      font-size: 22px;
+  }
+  
+  .formItem { /* Class cho Form.Item */
+      margin-bottom: 20px !important;
+  }
+  
+  .modalFooter { /* Class cho khu vực footer tùy chỉnh */
+      text-align: right;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+  }
+  
+  /* --- Address Selector in Modal --- */
+  .addressSelectorContainer {
+    margin-top: 10px; /* Khoảng cách với input email */
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 15px;
+    background-color: #fafafa;
+  }
+  .addressSelectorContainer > div { /* Target trực tiếp div bên trong SelectedAddress nếu cần */
+      margin-bottom: 10px;
+  }
+  .addressSelectorContainer label { /* Style cho label nếu có */
+      font-weight: 500;
+      display: block;
+      margin-bottom: 5px;
+      color: rgba(0,0,0,.85);
+  }
+  
+  /* --- Change Password Modal Specifics --- */
+  .passwordInputGroup {
+      margin-bottom: 16px;
+  }
+  .passwordInputGroup p { /* Style cho label nếu dùng p */
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: rgba(0,0,0,.85);
+  }
+  
+  .errorText {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-top: 5px;
+    text-align: center; /* Căn giữa thông báo lỗi */
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .userProfileContainer {
+        margin: 20px auto;
+        max-width: 95%;
+    }
+    .cardExtraButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+     .cardExtraButtons :global(.ant-btn) {
+        width: 100%;
+        margin-left: 0;
+     }
+     .profileDescriptions :global(.ant-descriptions-item-label) {
+        width: 120px;
+     }
+    :global(.ant-modal-body) {
+      max-height: 60vh;
+    }
+  }
+
+/* Giới hạn chiều cao modal content và cho phép cuộn */
+:global(.ant-modal-body) {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Làm đẹp modal Ant Design */
+:global(.ant-modal-content) {
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 0;
+  overflow: hidden;
+}
+
+:global(.ant-modal-header) {
+  background: #f7f9fa;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 24px 32px 16px 32px;
+  text-align: center;
+}
+
+:global(.ant-modal-title) {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1890ff;
+  letter-spacing: 0.5px;
+}
+
+:global(.ant-modal-body) {
+  padding: 32px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #fff;
+}
+
+/* Đẹp thanh cuộn */
+:global(.ant-modal-body)::-webkit-scrollbar {
+  width: 8px;
+}
+:global(.ant-modal-body)::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 8px;
+}
+:global(.ant-modal-body)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Nút ở modal */
+:global(.ant-modal-footer) {
+  padding: 16px 32px;
+  background: #f7f9fa;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Responsive cho modal */
+@media (max-width: 768px) {
+  :global(.ant-modal-content) {
+    border-radius: 18px;
+  }
+  :global(.ant-modal-header),
+  :global(.ant-modal-footer) {
+    padding: 16px 12px;
+  }
+  :global(.ant-modal-body) {
+    padding: 16px 8px;
+    max-height: 60vh;
+  }
+}
+
+:global(body.ant-modal-open) {
+  overflow: hidden !important;
+  touch-action: none;
+}

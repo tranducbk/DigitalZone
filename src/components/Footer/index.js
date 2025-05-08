@@ -56,22 +56,22 @@ const Footer = () => {
               style={{ width: "60px", backgroundColor: "#fff", height: "2px" }}
             />
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Tra cứu đơn hàng
               </a>
             </p>
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Hướng dẫn mua hàng trực tuyến
               </a>
             </p>
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Hướng dẫn thanh toán
               </a>
             </p>
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Góp ý, Khiếu Nại
               </a>
             </p>
@@ -84,22 +84,22 @@ const Footer = () => {
               style={{ width: "60px", backgroundColor: "#fff", height: "2px" }}
             />
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Thông tin khuyến mại
               </a>
             </p>
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Sản phẩm khuyến mại
               </a>
             </p>
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Sản phẩm mới
               </a>
             </p>
             <p>
-              <a href="#" className="text-white">
+              <a href="#" className="text-white option-footer">
                 Hỗ trợ
               </a>
             </p>

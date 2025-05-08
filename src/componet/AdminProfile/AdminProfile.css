@@ -1,3 +1,123 @@
-.select-container {
-    flex-direction: column;
-}
+/* AdminProfile.css */
+.adminProfileContainer {
+    /* width: 100%;
+    height: 100%; */
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items to the start for better card display */
+  }
+  
+  .profileCardWrapper { /* Wrapper cho card để căn giữa khi nội dung ít */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .profileCard {
+    width: 100%; /* Card chiếm full width của wrapper */
+    max-width: 700px; /* Giới hạn độ rộng tối đa của card */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 8px; /* Bo góc mềm mại hơn */
+  }
+  
+  /* Tiêu đề Card */
+  .cardTitle {
+    font-weight: 600; /* Bold hơn */
+    font-size: 22px; /* Kích thước lớn hơn */
+    color: #1890ff; /* Màu xanh Ant Design */
+    display: flex;
+    align-items: center;
+  }
+  .cardTitleIcon {
+    margin-right: 12px;
+    font-size: 24px;
+  }
+  
+  /* Nút ở phần extra của Card */
+  .cardExtraButtons .ant-btn {
+    margin-left: 8px; /* Khoảng cách giữa các nút nếu có nhiều */
+  }
+  .cardExtraButtons .ant-btn:first-child {
+    margin-left: 0;
+  }
+  
+  
+  /* Descriptions component */
+  .profileCard .ant-descriptions-item-label {
+    font-weight: 500; /* Label không quá đậm */
+    width: 180px; /* Cố định chiều rộng label */
+    color: rgba(0, 0, 0, 0.65); /* Màu label dịu hơn */
+  }
+  .profileCard .ant-descriptions-item-label .anticon {
+    margin-right: 8px; /* Khoảng cách icon với text trong label */
+    color: #1890ff; /* Màu icon trong label */
+  }
+  
+  .profileCard .ant-descriptions-item-content {
+    color: rgba(0, 0, 0, 0.85); /* Màu nội dung đậm hơn */
+    font-weight: 500;
+  }
+  
+  /* Modal styles */
+  .modalTitle {
+    text-align: center;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 24px; /* Tăng khoảng cách dưới tiêu đề modal */
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modalTitleIcon {
+    margin-right: 10px;
+    font-size: 22px;
+    color: #1890ff;
+  }
+  
+  .formItem {
+    margin-bottom: 20px !important; /* Khoảng cách giữa các Form.Item */
+  }
+  
+  /* CSS cho SelectedAddress */
+  .addressSelectorContainer {
+    /* Thêm style nếu cần để SelectedAddress hiển thị đẹp hơn trong Form.Item */
+  }
+  .addressSelectorContainer .select-container { /* Target class bên trong SelectedAddress */
+      display: flex;
+      flex-direction: column;
+      gap: 12px; /* Khoảng cách giữa các Select */
+  }
+  .addressSelectorContainer .select-container .ant-select {
+      width: 100%;
+  }
+  
+  /* Spin toàn trang */
+  .fullPageSpin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 150px); /* Chiều cao tương đối để spin ở giữa */
+    width: 100%;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .profileCard {
+      max-width: 90%;
+    }
+    .cardExtraButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .cardExtraButtons .ant-btn {
+      width: 100%;
+      margin-left: 0;
+    }
+    .profileCard .ant-descriptions-item-label {
+      width: 120px;
+    }
+  }

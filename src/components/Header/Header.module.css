@@ -1,0 +1,166 @@
+/* Header.module.css */
+
+.header {
+  background-color: #d70018;
+  padding: 0 24px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 64px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logoImage {
+  height: 45px;
+  object-fit: contain;
+}
+
+.categoryMenuButton {
+  color: white !important;
+  background: hsla(0, 0%, 100%, 0.2) !important;
+  border: none !important;
+  padding: 0 15px !important;
+  height: 40px !important;
+  border-radius: 6px !important;
+  transition: background-color 0.3s ease !important;
+}
+.categoryMenuButton:hover {
+  background: hsla(0, 0%, 100%, 0.3) !important;
+}
+.categoryMenuButton .anticon {
+    margin-right: 8px;
+}
+
+.centerSection {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.searchInput :global(.ant-input-group-addon button) {
+  border: none !important;
+  background-color: #f1f1f1 !important;
+  border-left: 1px solid #d9d9d9 !important;
+}
+.searchInput :global(.ant-input-search-button) {
+    background-color: #f1f1f1 !important;
+    color: #555 !important;
+    border: none !important;
+}
+.searchInput :global(.ant-input-search-button:hover) {
+    background-color: #e5e5e5 !important;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 5px 10px !important;
+  height: 40px !important;
+  border-radius: 6px !important;
+  transition: background-color 0.3s ease, transform 0.2s ease !important;
+  text-decoration: none;
+}
+.actionButton:hover {
+  background: hsla(0, 0%, 100%, 0.15) !important;
+}
+.actionButton .anticon {
+    font-size: 20px;
+}
+.actionText {
+    font-size: 13px;
+    font-weight: 500;
+    display: block;
+}
+
+.userDropdownMenu :global(.ant-dropdown-menu-item) {
+    padding: 8px 12px;
+}
+.userDropdownMenu :global(.ant-dropdown-menu-item .anticon) {
+    margin-right: 8px;
+}
+
+@media (max-width: 992px) {
+    .header { padding: 0 15px; }
+    .leftSection { gap: 15px; }
+    .centerSection { padding: 0 15px; }
+    .rightSection { gap: 10px; }
+    .actionText { display: none; }
+    .actionButton { padding: 5px !important; }
+    .categoryMenuButton span:not(.anticon) { display: none; }
+     .categoryMenuButton { padding: 0 10px !important; }
+}
+
+@media (max-width: 768px) {
+    .header { height: 60px; }
+    .logoImage { height: 35px; }
+    .categoryMenuButton { height: 36px !important; }
+    .actionButton { height: 36px !important; }
+     .actionButton .anticon { font-size: 18px; }
+     .centerSection { padding: 0 10px; }
+      .leftSection { gap: 10px; }
+    .rightSection { gap: 5px; }
+}
+
+@media (max-width: 576px) {
+    .header { padding: 0 10px; }
+    .logoLink { display: none; }
+}
+
+.menuBarPopover {
+    padding: 0 !important;
+}
+.menuBarPopover :global(.ant-popover-inner-content),
+.menuBarPopover :global(.ant-dropdown-menu) {
+     padding: 0 !important;
+}
+
+:global(.ant-popover-inner) {
+  padding: 0 !important;
+}
+/* --- Tippy/Dropdown MenuBar Style --- */
+.menuBarPopover { /* Class cho popover/dropdown chứa MenuBar */
+    padding: 0 !important; /* Bỏ padding mặc định */
+}
+.menuBarPopover :global(.ant-popover-inner-content),
+.menuBarPopover :global(.ant-dropdown-menu) { /* Target nội dung bên trong */
+     padding: 0 !important;
+}
+
+.ant-popover-inner {
+  padding: 0 !important;
+}
+/* Cần style lại MenuBar.module.css nếu nó nằm trong dropdown */

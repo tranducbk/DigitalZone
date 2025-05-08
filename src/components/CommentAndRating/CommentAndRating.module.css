@@ -1,3 +1,38 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form {
+  margin-bottom: 32px;
+}
+
+.commentsList {
+  margin-top: 24px;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.commentContent {
+  font-size: 15px;
+  color: #333;
+}
+
+.commentDate {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+  display: block;
+}
 
 .rating-form {
   margin: 50px 100px; 

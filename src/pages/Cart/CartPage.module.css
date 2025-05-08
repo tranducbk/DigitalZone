@@ -1,0 +1,145 @@
+/* CartPage.module.css */
+
+.cartPageContainer {
+    padding: 75px 0 10px;
+    background-color: #f5f5f5; /* Nền xám nhạt */
+  }
+  
+  .cartContent {
+    max-width: 1100px; /* Tăng độ rộng */
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  .pageTitle {
+    text-align: center;
+    margin-bottom: 30px !important;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  /* Card chứa bảng sản phẩm */
+  .cartItemsCard {
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+  }
+  .cartItemsCard :global(.ant-card-head) {
+      background-color: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 0 20px;
+  }
+  .cartItemsCard :global(.ant-card-head-title) {
+      padding: 14px 0;
+      font-weight: 600;
+  }
+  /* Bỏ padding body của card để Table chiếm full */
+  .cartItemsCard :global(.ant-card-body) {
+      padding: 0 !important;
+  }
+  
+  
+  /* Table sản phẩm */
+  .cartTable :global(.ant-table-thead > tr > th) {
+    background-color: #fff !important; /* Nền trắng cho header table */
+    font-weight: 500;
+    color: #555;
+    padding: 12px 16px !important;
+  }
+  .cartTable :global(.ant-table-tbody > tr > td) {
+    padding: 16px !important; /* Tăng padding cho cell */
+    vertical-align: middle;
+  }
+  /* Bỏ border dưới của dòng cuối cùng */
+  .cartTable :global(.ant-table-tbody > tr:last-child > td) {
+      border-bottom: none;
+  }
+  
+  /* Style cho ảnh sản phẩm trong table */
+  .productImage {
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
+  }
+  
+  /* InputNumber cho số lượng */
+  .quantityInput :global(.ant-input-number) {
+      width: 70px; /* Độ rộng vừa đủ */
+      text-align: center;
+  }
+  .quantityInput :global(.ant-input-number-handler-wrap) {
+      opacity: 1 !important; /* Luôn hiện nút tăng giảm */
+  }
+  
+  /* Nút xóa */
+  .deleteButton {
+      color: #ff4d4f;
+      font-size: 18px; /* Kích thước icon */
+  }
+  .deleteButton:hover {
+      color: #cf1322;
+  }
+  
+  /* Phần thanh toán tổng kết */
+  .summaryCard {
+      position: sticky; /* Dính lại khi cuộn */
+      bottom: 15px;     /* Khoảng cách với đáy viewport */
+      z-index: 10;      /* Nằm trên các phần tử khác */
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08); /* Shadow phía trên */
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+  }
+  .summaryCard :global(.ant-card-body) {
+      padding: 15px 20px !important; /* Padding nhỏ hơn cho summary */
+  }
+  
+  .summaryContent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+      gap: 15px;
+  }
+  
+  .summaryActions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+  }
+  
+  .totalAmountText {
+      font-size: 18px;
+      font-weight: 600;
+      color: #d70018; /* Màu đỏ cho tổng tiền */
+      white-space: nowrap;
+  }
+  
+  .checkoutButton {
+      height: 40px !important;
+      padding: 0 25px !important;
+      font-weight: 500;
+  }
+  
+  /* Empty state */
+  .emptyCartContainer {
+      text-align: center;
+      padding: 50px 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  
+  .emptyCartIcon {
+      font-size: 64px;
+      color: #d9d9d9;
+      margin-bottom: 20px;
+  }
+  
+  /* No user info */
+  .noUserInfo { /* Giữ nguyên style cũ hoặc điều chỉnh */
+      /* ... */
+  }
+  
+  /* Payment Modal (Nếu dùng Antd Modal) */

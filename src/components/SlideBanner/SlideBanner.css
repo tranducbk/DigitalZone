@@ -1,4 +1,3 @@
-/* CSS cho phần chứa banner */
 .slide-banner {
     display: flex;
     justify-content: center; /* Căn giữa theo chiều ngang */
@@ -74,8 +73,7 @@
 
 .swiper-slide:hover {
     flex: 1px 1px auto; 
-    transform: scale(1.07); /* Phóng to slide khi hover */
-    background-color:rgb(255, 255, 0); /* Đổi màu nền khi hover */
+    transform: scale(1.01); /* Phóng to slide khi hover */
     color: #4c3838; /* Đổi màu chữ khi hover */
     z-index: 1; /* Đảm bảo phần tử được hiển thị phía trên */
 }
@@ -91,7 +89,7 @@
 .swiper-slide {
     flex: 0 0 auto; /* Đảm bảo mỗi slide chiếm một không gian cố định */
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: #ffffff;
     border: 1px solid #ddd; /* Biên của slide */
     border-radius: 8px; /* Bo góc */
     cursor: pointer; /* Hiển thị con trỏ dạng tay khi di chuột */

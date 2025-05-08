@@ -1,51 +1,48 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import './Item.css'
 import ProductRating from '../ProductRating/ProductRating.js';
 
-function Item(props) {
+function Item({ id, name, image, price, sale, rating, hideAddToCart }) {
+  const navigate = useNavigate();
   const formatPrice = (price) => {
     let priceString = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     return priceString.replace(/\s/g, '');
   }
-  const discountPrice = props.price * (1 - props.sale/100);
+  const discountPrice = price * (1 - sale/100);
+
+  // Hàm xử lý chuyển trang khi click vào card (trừ nút Thêm vào giỏ)
+  const handleCardClick = (e) => {
+    // Nếu click vào nút Thêm vào giỏ thì không chuyển trang
+    if (e.target.closest('.item-card-button')) return;
+    navigate(`/product/${id}`);
+  };
 
   return (
-    <div className='item'>
-      <div className="item-info">
-        <Link to={`/product/${props.id}`}>
-          <div className="item-image">
-            <img src={props.image} alt={props.name} />
-          </div>
-          <div className="item-name">
-            <h3>{props.name}</h3>
-          </div>
-          <div className="box-price">
-            <p className="item-price-new">{formatPrice(discountPrice)}</p>
-            <p className="item-price-old">{formatPrice(props.price)}</p>
-            <div className="item-price-percent">
-              <p className="item-price-percent-detail">Giảm {' '}
-               {props.sale}
-                %
-              </p>
-              <div className="cover-item">
-                <span>TRẢ GÓP 0%</span>
-              </div>
-            </div>
-          </div>
-          <div className="item-promotions">
-            <div className="promotion">
-              <p className="coupon-price">
-                 Ưu đãi trả góp 0% lãi suất 
-                 - 0% phí chuyển đổi
-              </p>
-            </div>
-          </div>
-          
-        </Link>
+    <div className="item-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="item-card-container">
+        {sale && <div className="item-card-sale">-{sale}%</div>}
+        <img className="item-card-image" src={image} alt={name} />
       </div>
-      <div className="bottom-div">
-          <ProductRating rating = {props.rating}/>
+      <div className="item-card-info">
+        <h3 className="item-card-name">{name}</h3>
+        <div className="item-card-box-price">
+          <p className="item-card-price-new">{formatPrice(discountPrice)}</p>
+          <p className="item-card-price-old">{formatPrice(price)}</p>
+        </div>
+        <div className="item-card-promotions">
+          <div className="item-card-promotion">
+            <p className="item-card-coupon-price">
+              Ưu đãi trả góp 0% lãi suất - 0% phí chuyển đổi
+            </p>
+          </div>
+        </div>
+        <div className="item-card-rating">
+          <ProductRating rating={rating} />
+        </div>
+        {!hideAddToCart && (
+          <button className="item-card-button">Thêm vào giỏ</button>
+        )}
       </div>
     </div>
   )

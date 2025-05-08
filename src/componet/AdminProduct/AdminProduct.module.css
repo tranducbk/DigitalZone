@@ -1,0 +1,108 @@
+/* AdminProduct.module.css */
+
+.adminProductContainer {
+    padding: 20px;
+    background-color: #fff; /* Hoặc màu nền chung của contentArea */
+    border-radius: 8px;
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09); Bỏ nếu contentArea đã có */
+  }
+  
+  .headerActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .pageTitle {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+  
+  .addProductButton {
+    /* Antd Button type="primary" đã có style tốt */
+    /* Nếu muốn custom thêm thì thêm vào đây */
+  }
+  .addProductButton .anticon {
+    margin-right: 8px;
+  }
+  
+  /* Table Styles */
+  .productTable :global(.ant-table) {
+    /* border: 1px solid #f0f0f0; */ /* Có thể bỏ nếu không muốn viền */
+    border-radius: 6px;
+    overflow: hidden; /* Để bo góc hoạt động cho header table */
+  }
+  
+  .productTable :global(.ant-table-thead > tr > th) {
+    background-color: #fafafa !important; /* Màu nền header bảng nhạt */
+    font-weight: 600;
+    color: #595959;
+    padding: 12px 16px !important; /* Tăng padding cho header */
+  }
+  
+  .productTable :global(.ant-table-tbody > tr > td) {
+    padding: 12px 16px !important; /* Tăng padding cho cell */
+    vertical-align: middle; /* Căn giữa theo chiều dọc */
+  }
+  
+  /* Style cho dòng khi hover */
+  .productTable :global(.ant-table-tbody > tr.ant-table-row-hover > td),
+  .productTable :global(.ant-table-tbody > tr:hover > td) {
+    background-color: #e6f7ff !important; /* Màu xanh nhạt khi hover */
+  }
+  
+  /* Nút xóa trong bảng */
+  .deleteButton {
+    color: #ff4d4f; /* Màu đỏ mặc định của Antd danger */
+    transition: color 0.3s, transform 0.2s;
+    font-size: 18px; /* Tăng kích thước icon */
+  }
+  .deleteButton:hover {
+    color: #cf1322; /* Màu đỏ đậm hơn khi hover */
+    transform: scale(1.2);
+  }
+  
+  /* Filter dropdown trong Table */
+  .filterDropdown {
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  }
+  .filterDropdown input {
+    margin-bottom: 10px;
+  }
+  .filterDropdown .ant-space-item .ant-btn {
+    min-width: 80px; /* Đảm bảo nút có độ rộng tối thiểu */
+  }
+  
+  
+  /* Modal Styles */
+  /* Modal cho AddProduct và ProductDetails sẽ kế thừa style chung của antd Modal.
+     Nếu muốn custom riêng cho các modal này, có thể thêm class vào Modal
+     và style ở đây. Ví dụ:
+  */
+  .productModal :global(.ant-modal-header) {
+    background-color: #f0f2f5; /* Nền header modal */
+    border-bottom: 1px solid #e8e8e8;
+    padding: 16px 24px;
+  }
+  .productModal :global(.ant-modal-title) {
+    font-weight: 600;
+    font-size: 18px;
+  }
+  .productModal :global(.ant-modal-body) {
+    padding: 24px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .headerActions {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  }

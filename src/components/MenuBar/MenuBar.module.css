@@ -1,0 +1,196 @@
+/* MenuBar.module.css */
+
+:where(.css-dev-only-do-not-override-apn68).ant-popover .ant-popover-inner {
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  padding: 12px;
+}
+
+.menuBar {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 8px 0;
+}
+
+.menu {
+  border: none;
+  background: transparent;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  margin: 4px 0;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.menuItem:hover {
+  background-color: #f5f5f5;
+}
+
+.menuItem.selected {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.mobileMenu {
+  display: flex;
+  align-items: center;
+}
+
+.mobileMenuButton {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 6px 18px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.mobilePopover {
+  min-width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.menuBarVertical {
+  width: 280px; /* Tăng chiều rộng để chứa text dài hơn */
+  background-color: #ffffff; /* Nền trắng */
+  border-radius: 8px; /* Bo góc */
+  border: 1px solid #e8e8e8; /* Viền mỏng */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Đổ bóng nhẹ */
+  padding: 8px 0; /* Padding top/bottom */
+  overflow-y: auto; /* Scroll nếu cần */
+  max-height: calc(100vh - 100px); /* Giới hạn chiều cao tối đa, tùy layout */
+}
+
+.menuBarVertical ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuBarVertical li {
+  /* Không cần margin nếu Link có padding */
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  text-decoration: none;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s, color 0.2s;
+  height: 56px;
+  min-height: 56px;
+  box-sizing: border-box;
+}
+
+/* Bỏ border cho mục cuối cùng */
+.menuBarVertical li:last-child .menuLink {
+  border-bottom: none;
+}
+
+.menuLink:hover {
+  background-color: #f5f5f5; /* Màu nền nhạt khi hover */
+  color: #0056b3; /* Màu chữ đậm hơn khi hover */
+}
+
+/* Style cho mục đang active */
+.menuLink.active { 
+  background-color: #e6f7ff; /* Màu nền xanh nhạt */
+  color: #1890ff; /* Màu chữ xanh */
+  font-weight: 600; /* Chữ đậm hơn */
+}
+.menuLink.active .categoryIcon {
+  color: #1890ff; /* Icon cũng màu xanh */
+}
+.menuLink.active .rightIcon {
+  color: #1890ff; /* Icon chevron cũng màu xanh */
+}
+
+/* Div chứa icon và label */
+.menuItemContent {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Icon */
+.categoryIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  text-align: center;
+  color: #555;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.menuLink:hover .categoryIcon {
+  color: #0056b3; /* Màu icon khi hover */
+}
+
+/* Label */
+.itemLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit; /* Kế thừa màu từ .menuLink */
+  white-space: nowrap; /* Không xuống dòng */
+  overflow: hidden; /* Ẩn phần thừa */
+  text-overflow: ellipsis; /* Hiển thị '...' nếu text quá dài */
+  transition: color 0.2s ease-in-out;
+}
+
+/* Icon mũi tên bên phải */
+.rightIcon {
+  font-size: 12px; /* Kích thước chevron */
+  color: #bfbfbf; /* Màu xám nhạt */
+  margin-left: 10px; /* Khoảng cách với nội dung */
+  flex-shrink: 0; /* Không bị co lại */
+  transition: color 0.2s ease-in-out;
+}
+
+.menuLink:hover .rightIcon {
+  color: #555; /* Màu đậm hơn khi hover */
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+:where(.menuBarVertical) li.ant-menu-item {
+  display: flex !important;
+  align-items: center !important;
+}

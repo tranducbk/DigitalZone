@@ -165,18 +165,21 @@ const UserProfile = () => {
             >
                 <Descriptions bordered column={1} size="middle" className={styles.profileDescriptions}>
                     <Descriptions.Item label={<><UserOutlined /> Tên người dùng</>}>
-                        <Text strong>{user.userName || 'N/A'}</Text>
+                        <Text strong>{user.userName || <Tag>Chưa cập nhật</Tag>}</Text>
                     </Descriptions.Item>
-                     {user.email && ( // Chỉ hiển thị nếu có email
-                        <Descriptions.Item label={<><MailOutlined /> Email</>}>
-                            {user.email}
-                        </Descriptions.Item>
-                     )}
+                    <Descriptions.Item label={<><MailOutlined /> Email</>}>
+                        {user.email || <Tag>Chưa cập nhật</Tag>}
+                    </Descriptions.Item>
                     <Descriptions.Item label={<><PhoneOutlined /> Số điện thoại</>}>
                         {user.phoneNumber || <Tag>Chưa cập nhật</Tag>}
                     </Descriptions.Item>
                     <Descriptions.Item label={<><HomeOutlined /> Địa chỉ</>}>
-                        <span className={styles.addressText}>{displayAddress}</span>
+                        <span className={styles.addressText}>
+                            {(user.diaChi && (user.diaChi.ward || user.diaChi.district || user.diaChi.city) && user.diaChi.ward !== "Phường/xã")
+                              ? `${user.diaChi.ward || ''}${user.diaChi.ward && user.diaChi.district ? ', ' : ''}${user.diaChi.district || ''}${ (user.diaChi.district || user.diaChi.ward) && user.diaChi.city ? ', ' : ''}${user.diaChi.city || ''}`.trim().replace(/^,|,$/g, '')
+                              : <Tag>Chưa cập nhật</Tag>
+                            }
+                        </span>
                     </Descriptions.Item>
                 </Descriptions>
             </Card>
@@ -193,7 +196,8 @@ const UserProfile = () => {
                 footer={null} // Sử dụng footer tùy chỉnh bên trong Form
                 destroyOnClose // Reset form khi đóng
                 maskClosable={false}
-                width={600}
+                width={800}
+                className={styles.editProfileModal}
             >
                 <Form form={editForm} layout="vertical" onFinish={handleUpdateFormSubmit}>
                     <Form.Item
@@ -215,8 +219,11 @@ const UserProfile = () => {
                         rules={[{ type: 'email', message: 'Email không hợp lệ!'}]} // Email không bắt buộc
                          className={styles.formItem}
                     >
-                        <Input prefix={<MailOutlined />} placeholder="Địa chỉ email (nếu có)" disabled={!!user.email}/> 
-                        {/* Disable nếu đã có email (thường không cho sửa email) */}
+                        <Input 
+                            prefix={<MailOutlined />} 
+                            placeholder="Địa chỉ email (nếu có)" 
+                            disabled={user.email?.includes('@gmail.com') || user.email?.includes('@google.com')}
+                        /> 
                     </Form.Item>
 
                     {/* Phần chọn địa chỉ */}

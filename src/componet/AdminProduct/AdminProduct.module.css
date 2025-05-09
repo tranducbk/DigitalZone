@@ -86,9 +86,7 @@
      và style ở đây. Ví dụ:
   */
   .productModal :global(.ant-modal-header) {
-    background-color: #f0f2f5; /* Nền header modal */
     border-bottom: 1px solid #e8e8e8;
-    padding: 16px 24px;
   }
   .productModal :global(.ant-modal-title) {
     font-weight: 600;

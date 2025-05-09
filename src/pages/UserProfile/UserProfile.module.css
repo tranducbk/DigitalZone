@@ -219,3 +219,13 @@
   overflow: hidden !important;
   touch-action: none;
 }
+
+.editProfileModal :global(.ant-modal-body) {
+  padding: 5px !important;
+}
+
+.editProfileModal :global(.ant-modal-content) {
+  padding: 24px !important;
+}
+
+/* Thêm các styles khác nếu cần */

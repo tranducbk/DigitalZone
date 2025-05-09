@@ -35,11 +35,11 @@ apiInstance.interceptors.response.use(
 const apiService = {
 
   // **Cart APIs**
-  getCart: () => apiInstance.get("cart"),
-  addProductToCart: (productId, variantColor, quantity) => apiInstance.post("cart/add", { productId, variantColor, quantity }),
-  updateCartQuantity: (productId, variantColor, quantity) => apiInstance.put("cart/update", { productId, variantColor, quantity }),
-  removeProductFromCart: (productId, variantColor) => apiInstance.delete("cart/delete", { data: { productId, variantColor } }),
-  clearCart: () => apiInstance.delete("cart/clear"),
+  getCart: () => apiInstance.get("/cart"),
+  addProductToCart: (productId, variantColor, quantity) => apiInstance.post("/cart/add", { productId, variantColor, quantity }),
+  updateCartQuantity: (productId, variantColor, quantity) => apiInstance.put("/cart/update", { productId, variantColor, quantity }),
+  removeProductFromCart: (productId, variantColor) => apiInstance.delete("/cart/delete", { data: { productId, variantColor } }),
+  clearCart: () => apiInstance.delete("/cart/clear"),
 
 
   // **Comment and Rating APIs**
@@ -56,10 +56,7 @@ const apiService = {
   getProducts: () => apiInstance.get("/product"),
   updateUserProfile: (userId, userData) => {
     return apiInstance.put("/profile", {userId, userData})}, // Chỉnh sửa thông tin cá nhân
-  changePassword: (oldPassword, newPassword) => apiInstance.put("/change-password", {
-      oldPassword,
-      newPassword
-  }),
+  changePassword: (oldPassword, newPassword) => apiInstance.put("/change-password", { oldPassword, newPassword }),
 
   // **Product APIs**//
   getProductById: (productId) => apiInstance.get(`/product/${productId}`),
@@ -88,7 +85,7 @@ const apiService = {
   updateAdminProfile: (adminData) =>
     apiInstance.put("/admin/profile", adminData),
   changeAdminPassword: (passwordData) =>
-    apiInstance.put("/admin/change-password", passwordData),
+    apiInstance.patch("/admin/change-password", passwordData),
 
   // **Admin User Management**
   getAllUsers: () => apiInstance.get("/admin/users"),

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Button, Modal, Input, message, Spin, Card, Form, Descriptions, // Thêm Form, Descriptions
-  Space, Typography // Thêm Space, Typography
+  Space, Typography, Tag // Thêm Space, Typography, Tag
 } from "antd";
 import {
   UserOutlined, PhoneOutlined, HomeOutlined, EditOutlined, KeyOutlined, MailOutlined,
@@ -183,16 +183,19 @@ const AdminProfile = () => {
         >
           <Descriptions bordered column={1} size="middle">
             <Descriptions.Item label={<><UserOutlined /> Tên Admin</>}>
-              <Text strong>{admin.userName || "N/A"}</Text>
+              <Text strong>{admin.userName || <Tag>Chưa cập nhật</Tag>}</Text>
             </Descriptions.Item>
             <Descriptions.Item label={<><MailOutlined /> Email</>}>
-              {admin.email || "N/A"}
+              {admin.email || <Tag>Chưa cập nhật</Tag>}
             </Descriptions.Item>
             <Descriptions.Item label={<><PhoneOutlined /> Số điện thoại</>}>
-              {admin.phoneNumber || "N/A"}
+              {admin.phoneNumber || <Tag>Chưa cập nhật</Tag>}
             </Descriptions.Item>
             <Descriptions.Item label={<><HomeOutlined /> Địa chỉ</>}>
-              {displayAddress}
+              {(admin.diaChi && (admin.diaChi.ward || admin.diaChi.district || admin.diaChi.city))
+                ? `${admin.diaChi.ward || ''}${admin.diaChi.ward && admin.diaChi.district ? ', ' : ''}${admin.diaChi.district || ''}${ (admin.diaChi.district || admin.diaChi.ward) && admin.diaChi.city ? ', ' : ''}${admin.diaChi.city || ''}`.trim().replace(/^,|,$/g, '')
+                : <Tag>Chưa cập nhật</Tag>
+              }
             </Descriptions.Item>
           </Descriptions>
         </Card>
@@ -229,7 +232,11 @@ const AdminProfile = () => {
                 { type: 'email', message: 'Email không đúng định dạng!' }
             ]}
           >
-            <Input prefix={<MailOutlined />} placeholder="Nhập địa chỉ email" />
+            <Input 
+              prefix={<MailOutlined />} 
+              placeholder="Nhập địa chỉ email" 
+              disabled={admin?.email?.includes('@gmail.com') || admin?.email?.includes('@google.com')}
+            />
           </Form.Item>
           <Form.Item
             name="phoneNumber" label="Số điện thoại" className="formItem"

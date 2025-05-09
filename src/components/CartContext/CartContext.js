@@ -9,14 +9,11 @@ export const CartProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchCartItems = async () => {
-            const userId = localStorage.getItem('userId');
-            if (userId) {
-                try {
-                    const response = await apiService.getCart(userId);
-                    setCartItems(response.data.cart || []);
-                } catch (error) {
-                    console.error('Error fetching cart:', error);
-                }
+            try {
+                const response = await apiService.getCart();
+                setCartItems(response.data.cart || []);
+            } catch (error) {
+                console.error('Error fetching cart:', error);
             }
             setLoading(false);
         };

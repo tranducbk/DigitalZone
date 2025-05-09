@@ -53,37 +53,6 @@ const Admin = () => {
   const SIDER_WIDTH = 220;
   const SIDER_COLLAPSED_WIDTH = 80;
 
-  useEffect(() => {
-    const role = localStorage.getItem("role");
-    if (role !== "admin") {
-      console.warn("Access denied. Redirecting...");
-      return;
-    }
-
-    const newSocket = io("http://localhost:5001");
-    setSocket(newSocket);
-
-    newSocket.on("receive_message", (data) => {
-      console.log("Received new message:", data);
-      setIsRead(false);
-      setUsers((prevUsers) => {
-        const userExists = prevUsers.find(user => user.id === data.userId);
-        if (userExists) {
-          return prevUsers.map(user =>
-            user.id === data.userId ? { ...user, mes: data.message, timestamp: Date.now() } : user
-          ).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        }
-        return [{ id: data.userId, mes: data.message, timestamp: Date.now() }, ...prevUsers]
-                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      });
-    });
-
-    return () => {
-      newSocket.off("receive_message");
-      newSocket.disconnect();
-    };
-  }, []);
-
   const handleBellClick = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltipPosition({

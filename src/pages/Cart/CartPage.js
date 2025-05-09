@@ -30,7 +30,7 @@ export default function CartPage() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const userId = localStorage.getItem("userId") || localStorage.getItem("userID");
+    const userId = localStorage.getItem("userId");
 
     // --- Hàm Format Giá ---
     const formatPrice = (price) => {

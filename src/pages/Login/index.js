@@ -78,22 +78,37 @@ const LoginPage = () => {
     const onFinish = async (values) => {
         setLoading(true);
         try {
+            console.log('Gửi request đăng nhập với data:', values);
             const response = await apiService.loginUser({
                 phoneNumber: values.phonenumber,
                 password: values.password,
             });
+            console.log('Response từ server:', response);
 
             if (response.data && response.data.success) {
-                // Lưu thông tin đăng nhập (sử dụng hàm login từ context)
-                login(response.data.role, response.data.token, response.data.user);
+                // Tạo user object từ response data
+                const userData = {
+                    id: response.data.userID,
+                    userName: response.data.userName,
+                    phoneNumber: response.data.phoneNumber,
+                    role: response.data.role
+                };
+                
+                // Lưu thông tin đăng nhập
+                login(response.data.role, response.data.token, userData);
+                console.log('Token sau khi đăng nhập:', response.data.token);
+                console.log('User data sau khi đăng nhập:', userData);
+                
                 message.success('Đăng nhập thành công!');
                 
                 if (response.data.role === "admin") {
-                    navigate("/admin"); // Chuyển hướng admin
+                    navigate("/admin");
                 } else {
-                    navigate("/"); // Chuyển hướng user thường
+                    navigate("/");
                 }
-            } 
+            } else {
+                message.error(response.data.message || 'Đăng nhập thất bại!');
+            }
         } catch (error) {
             console.error("Lỗi đăng nhập:", error);
             // Hiển thị lỗi cụ thể từ backend nếu có

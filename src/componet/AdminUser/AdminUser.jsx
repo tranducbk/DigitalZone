@@ -237,7 +237,7 @@ const AdminUser = () => {
       ...getColumnSearchProps('userName', 'Tên Người Dùng'),
     },
     {
-      title: "Email", // Thêm cột Email nếu có
+      title: "Email",
       dataIndex: "email",
       key: "email",
       ellipsis: true,
@@ -361,12 +361,10 @@ const AdminUser = () => {
       <Modal
         title="Chỉnh sửa thông tin người dùng"
         open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          form.resetFields();
-        }}
+        onCancel={() => setIsModalVisible(false)}
         footer={null}
-        width={600}
+        width={800}
+        className={styles.editUserModal}
       >
         <Form
           form={form}
@@ -390,7 +388,9 @@ const AdminUser = () => {
               { type: 'email', message: 'Email không hợp lệ' }
             ]}
           >
-            <Input />
+            <Input 
+              disabled={editingUser?.email?.includes('@gmail.com') || editingUser?.email?.includes('@google.com')}
+            />
           </Form.Item>
 
           <Form.Item

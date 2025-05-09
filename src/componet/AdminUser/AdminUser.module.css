@@ -4,7 +4,6 @@
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
-    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09); Bỏ nếu container cha đã có */
   }
   
   .headerActions {
@@ -103,3 +102,18 @@
   flex-direction: column;
   gap: 8px;
 }
+
+/* Custom modal styles */
+.editUserModal :global(.ant-modal-body) {
+  padding: 5px !important;
+}
+
+.editUserModal :global(.ant-modal-content) {
+  padding: 24px !important;
+}
+
+/* .ant-modal-root .ant-modal .ant-modal-body,
+.ant-modal .ant-modal-body,
+:where(.css-dev-only-do-not-override-apn68).ant-modal .ant-modal-body {
+  padding: 5px !important;
+} */

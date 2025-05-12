@@ -4,17 +4,16 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { 
     Layout, Row, Col, Card, Typography, Button, Checkbox, 
     InputNumber, Table, message, Spin, Empty, Space, 
-    Divider, Tooltip, Modal, Image // Thêm Image vào import
+    Divider, Tooltip, Modal, Image
 } from 'antd';
 import { 
     DeleteOutlined, ShoppingCartOutlined, ArrowLeftOutlined, 
-    DollarCircleOutlined, CreditCardOutlined, // Thêm icons
+    DollarCircleOutlined, CreditCardOutlined,
     ExclamationCircleFilled, CheckCircleOutlined, StopOutlined
 } from '@ant-design/icons';
-import apiInstance from "../../api/api"; // Đảm bảo đường dẫn đúng
-import styles from './CartPage.module.css'; // Đổi tên file CSS và import
-import { MdDelete } from "react-icons/md"; // Có thể bỏ nếu dùng DeleteOutlined
-import Payment from "../../components/Payment/Payment"; // Import Payment component
+import apiInstance from "../../api/api";
+import styles from './CartPage.module.css';
+import Payment from "../../components/Payment/Payment";
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -22,29 +21,27 @@ const { confirm } = Modal;
 
 export default function CartPage() {
     const [cartItems, setCartItems] = useState([]);
-    const [loading, setLoading] = useState(true); // Loading ban đầu
-    const [isUpdating, setIsUpdating] = useState(false); // Loading khi update số lượng/xóa
-    const [isCheckingOut, setIsCheckingOut] = useState(false); // Loading khi đặt hàng
-    const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false); // State cho modal Payment
-    const [orderDataForPayment, setOrderDataForPayment] = useState(null); // Data đơn hàng cho modal Payment
+    const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
+    const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
+    const [orderDataForPayment, setOrderDataForPayment] = useState(null);
 
     const navigate = useNavigate();
     const location = useLocation();
     const userId = localStorage.getItem("userId");
 
-    // --- Hàm Format Giá ---
     const formatPrice = (price) => {
         const num = Number(price);
         if (isNaN(num) || num === null || num === undefined) return '0₫';
         return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     };
 
-    // --- Fetch Cart Items ---
     const fetchCartItemsWithNames = async () => {
         setLoading(true);
         try {
             const response = await apiInstance.getCart();
-            const cartData = response.data.cart || { items: [] }; // Đảm bảo có object cart
+            const cartData = response.data.cart || { items: [] };
             const itemsFromApi = cartData.items || [];
 
             const itemsWithDetails = await Promise.all(
@@ -53,23 +50,23 @@ export default function CartPage() {
                         const productResponse = await apiInstance.getProductById(item.productId);
                         return {
                             ...item,
-                            key: item._id || `${item.productId}-${item.variant?.color}`, // Key cho table
+                            key: item._id || `${item.productId}-${item.variant?.color}`,
                             productName: productResponse.data.product.name,
-                            price: productResponse.data.product.price, // Giá gốc
-                            image: item.variant?.image || productResponse.data.product.images?.[0], // Ưu tiên ảnh variant
-                            maxQuantity: item.variant?.quantity || 0, // Số lượng tồn kho của variant
-                            selected: true, // Mặc định chọn tất cả ban đầu
+                            price: productResponse.data.product.price,
+                            image: item.variant?.image || productResponse.data.product.images?.[0],
+                            maxQuantity: item.variant?.quantity || 0,
+                            selected: true,
                         };
                     } catch (prodError) {
                         console.error(`Lỗi lấy chi tiết SP ${item.productId}:`, prodError);
-                        return { ...item, key: item._id, productName: 'Sản phẩm lỗi', price: 0, image: null, maxQuantity: 0, selected: false }; // Xử lý SP lỗi
+                        return { ...item, key: item._id, productName: 'Sản phẩm lỗi', price: 0, image: null, maxQuantity: 0, selected: false };
                     }
                 })
             );
             setCartItems(itemsWithDetails);
         } catch (error) {
             console.error("Lỗi tải giỏ hàng:", error);
-            setCartItems([]); // Đặt lại giỏ hàng nếu lỗi
+            setCartItems([]);
         } finally {
             setLoading(false);
         }
@@ -105,14 +102,12 @@ export default function CartPage() {
 
     useEffect(() => {
         if (location.state && location.state.fromBuyNow) {
-            // Chỉ reload 1 lần, sau đó xóa state để tránh lặp lại
             navigate(location.pathname, { replace: true, state: {} });
             window.location.reload();
         }
         // eslint-disable-next-line
     }, [location.state]);
 
-    // --- Xử lý Checkbox ---
     const handleToggleSelect = (itemId) => {
         setCartItems(prevItems =>
             prevItems.map(item =>
@@ -129,38 +124,31 @@ export default function CartPage() {
         setCartItems(prevItems => prevItems.map(item => ({ ...item, selected: checked })));
     };
 
-    // --- Xử lý Số lượng ---
     const handleQuantityChange = async (itemId, newQuantity) => {
         const itemToUpdate = cartItems.find(item => item.key === itemId);
         if (!itemToUpdate) return;
 
-        // Giới hạn số lượng không vượt quá tồn kho
         const quantity = Math.max(1, Math.min(newQuantity, itemToUpdate.maxQuantity));
         
         if (quantity !== newQuantity) {
             message.warning(`Số lượng tồn kho của sản phẩm này là ${itemToUpdate.maxQuantity}.`);
         }
 
-        // Cập nhật state ngay lập tức để phản hồi nhanh
         setCartItems(prevItems =>
             prevItems.map(item =>
                 item.key === itemId ? { ...item, quantity: quantity } : item
             )
         );
 
-        // Gọi API (debounce nếu cần)
-        setIsUpdating(true); // Có thể hiển thị loading cho dòng đó
+        setIsUpdating(true);
         try {
             await apiInstance.updateCartQuantity(itemToUpdate.productId, itemToUpdate.variant.color, quantity);
-            // Fetch lại giỏ hàng để đảm bảo đồng bộ nếu cần, hoặc chỉ cập nhật state
-            // fetchCartItemsWithNames(); 
         } catch (error) {
             console.error("Lỗi cập nhật số lượng:", error);
             message.error("Cập nhật số lượng thất bại.");
-            // Rollback state nếu API lỗi
             setCartItems(prevItems =>
                 prevItems.map(item =>
-                    item.key === itemId ? { ...item, quantity: itemToUpdate.quantity } : item // Quay lại số lượng cũ
+                    item.key === itemId ? { ...item, quantity: itemToUpdate.quantity } : item
                 )
             );
         } finally {
@@ -168,7 +156,6 @@ export default function CartPage() {
         }
     };
 
-    // --- Xử lý Xóa ---
     const handleRemoveItem = async (itemToRemove) => {
         confirm({
             title: `Xóa sản phẩm`,
@@ -206,12 +193,11 @@ export default function CartPage() {
             onOk: async () => {
                 setIsUpdating(true);
                 try {
-                    // Gọi API xóa nhiều lần hoặc API xóa hàng loạt nếu có
                     await Promise.all(selectedItems.map(item => 
                         apiInstance.removeProductFromCart(item.productId, item.variant.color)
                     ));
                     message.success(`Đã xóa ${selectedItems.length} sản phẩm.`);
-                    fetchCartItemsWithNames(); // Tải lại giỏ hàng
+                    fetchCartItemsWithNames();
                 } catch (error) {
                      console.error("Lỗi xóa sản phẩm đã chọn:", error);
                      message.error("Xóa sản phẩm thất bại.");
@@ -222,7 +208,6 @@ export default function CartPage() {
         });
     }
 
-    // --- Tính tổng tiền ---
     const totalAmount = useMemo(() => {
         return selectedItems.reduce((total, item) => {
             const itemPrice = item.price * (100 - (item.variant?.sale || 0)) / 100;
@@ -230,8 +215,7 @@ export default function CartPage() {
         }, 0);
     }, [selectedItems]);
 
-    // --- Xử lý Đặt hàng ---
-    const handleProceedToCheckout = (paymentMethodType = "PayPal") => { // Mặc định là PayPal
+    const handleProceedToCheckout = (paymentMethodType = "PayPal") => {
         if (selectedItems.length === 0) {
             message.warning("Vui lòng chọn ít nhất một sản phẩm để mua hàng!");
             return;
@@ -255,16 +239,17 @@ export default function CartPage() {
             paymentStatus: "Pending",
         };
 
-        setOrderDataForPayment(orderData); // Lưu data để dùng nếu thanh toán online
+        setOrderDataForPayment(orderData);
 
         if (paymentMethodType === 'Cash on Delivery') {
-            createOrderApiCall(orderData); // Gọi API tạo đơn hàng COD
+            createOrderApiCall(orderData);
+        } else if (paymentMethodType === 'VNPAY') {
+            handleVnpayPayment(orderData);
         } else {
-            setIsPaymentModalVisible(true); // Mở modal thanh toán online
+            setIsPaymentModalVisible(true);
         }
     };
 
-    // Hàm gọi API tạo đơn hàng
     const createOrderApiCall = async (orderPayload) => {
         setIsCheckingOut(true);
         try {
@@ -272,9 +257,8 @@ export default function CartPage() {
             const response = await apiInstance.createOrder(orderPayload);
             if (response.data && (response.data.success || response.status < 300)) {
                 message.success("Đặt hàng thành công!");
-                // Không cần gọi API xóa từng sản phẩm nữa
-                fetchCartItemsWithNames(); // Tải lại giỏ hàng sau khi đặt hàng
-                navigate("/checkout"); // Chuyển đến trang lịch sử đơn hàng
+                fetchCartItemsWithNames();
+                navigate("/checkout");
             } else {
                  message.error(response.data?.message || "Đặt hàng thất bại.");
             }
@@ -286,12 +270,10 @@ export default function CartPage() {
         }
     };
 
-    // Thêm hàm handleRefresh
     const handleRefresh = () => {
         fetchCartItemsWithNames();
     };
 
-    // --- Định nghĩa Columns cho Table ---
     const columns = [
         {
             key: 'selection',
@@ -351,12 +333,12 @@ export default function CartPage() {
             render: (_, record) => (
                 <InputNumber
                     min={1}
-                    max={record.maxQuantity} // Giới hạn bởi số lượng tồn kho
+                    max={record.maxQuantity}
                     value={record.quantity}
                     onChange={(value) => handleQuantityChange(record.key, value)}
                     size="small"
                     className={styles.quantityInput}
-                    disabled={isUpdating} // Disable khi đang cập nhật
+                    disabled={isUpdating}
                 />
             )
         },
@@ -382,14 +364,32 @@ export default function CartPage() {
                         icon={<DeleteOutlined />} 
                         onClick={() => handleRemoveItem(record)}
                         className={styles.deleteButton}
-                        disabled={isUpdating} // Disable khi đang cập nhật
+                        disabled={isUpdating}
                     />
                  </Tooltip>
             )
         }
     ];
 
-    // --- Render chính ---
+    const handleVnpayPayment = async (orderData) => {
+        setIsCheckingOut(true);
+        try {
+            const response = await apiInstance.createPayment({
+                amount: orderData.totalAmount,
+            });
+            if (response.data && response.data.paymentUrl) {
+                window.location.href = response.data.paymentUrl;
+            } else {
+                message.error("Không lấy được link thanh toán VNPAY.");
+            }
+        } catch (error) {
+            message.error("Thanh toán VNPAY thất bại.");
+            console.error(error);
+        } finally {
+            setIsCheckingOut(false);
+        }
+    };
+
     return (
         <Layout className={styles.cartPageContainer}>
             <Content className={styles.cartContent}>
@@ -413,7 +413,6 @@ export default function CartPage() {
                                 rowKey="key"
                                 locale={{ emptyText: 'Không có sản phẩm nào trong giỏ hàng' }}
                             />
-                            {/* Dòng tổng tiền */}
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'flex-end',
@@ -427,7 +426,6 @@ export default function CartPage() {
                             </div>
                         </Card>
                         
-                        {/* Thanh tổng kết và thanh toán */}
                         <Card className={styles.summaryCard}>
                             <div className={styles.summaryContent}>
                                 <div className={styles.summaryActions}>
@@ -450,12 +448,11 @@ export default function CartPage() {
                                 <Space align="center" size="large">
                                     <Text>Tổng thanh toán ({selectedItems.length} sản phẩm):</Text>
                                     <Text className={styles.totalAmountText}>{formatPrice(totalAmount)}</Text>
-                                     {/* // Tách nút thanh toán ra */}
                                     <Button 
                                         type="primary" 
                                         size="large" 
                                         className={styles.checkoutButton}
-                                        onClick={() => handleProceedToCheckout('PayPal')} // Mặc định mở PayPal
+                                        onClick={() => handleProceedToCheckout('PayPal')}
                                         disabled={selectedItems.length === 0 || isCheckingOut}
                                         loading={isCheckingOut && orderDataForPayment?.paymentMethod === 'PayPal'}
                                         icon={<CreditCardOutlined />}
@@ -463,7 +460,7 @@ export default function CartPage() {
                                         Thanh toán Online
                                     </Button>
                                      <Button 
-                                        type="default" // Nút COD kiểu khác
+                                        type="default"
                                         size="large" 
                                         className={styles.checkoutButton}
                                         onClick={() => handleProceedToCheckout('Cash on Delivery')}
@@ -473,12 +470,22 @@ export default function CartPage() {
                                     >
                                         Thanh toán khi nhận hàng
                                     </Button>
+                                    {/* <Button 
+                                        type="primary" 
+                                        size="large" 
+                                        className={styles.checkoutButton}
+                                        onClick={() => handleProceedToCheckout('VNPAY')}
+                                        disabled={selectedItems.length === 0 || isCheckingOut}
+                                        loading={isCheckingOut && orderDataForPayment?.paymentMethod === 'VNPAY'}
+                                        icon={<CreditCardOutlined />}
+                                    >
+                                        Thanh toán VNPAY
+                                    </Button> */}
                                 </Space>
                             </div>
                         </Card>
                     </>
                 )}
-                {/* Modal Payment */}
                  <Modal
                     title="Thanh toán Online"
                     open={isPaymentModalVisible}
@@ -492,7 +499,7 @@ export default function CartPage() {
                         <Payment 
                             orderData={orderDataForPayment}
                             onPaymentSuccess={() => {
-                                createOrderApiCall(orderDataForPayment); // Gọi API tạo đơn hàng khi xác nhận thanh toán online
+                                createOrderApiCall(orderDataForPayment);
                                 setIsPaymentModalVisible(false);
                             }}
                             onPaymentError={(errMsg) => {

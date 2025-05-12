@@ -249,36 +249,19 @@ const AdminUser = () => {
       key: "phoneNumber",
       width: 150,
       ...getColumnSearchProps('phoneNumber', 'Số Điện Thoại'),
-       render: (text) => text ? <Space><PhoneOutlined /> {text}</Space> : <Text type="secondary">N/A</Text>
+       render: (text) => text ? <Space><PhoneOutlined /> {text}</Space> : <Tag>Chưa cập nhật</Tag>
     },
     {
       title: "Địa Chỉ",
-      dataIndex: "diaChiFormatted", // Sử dụng trường đã format
+      dataIndex: "diaChiFormatted",
       key: "diaChiFormatted",
-      ellipsis: true, // Cho phép cắt bớt nếu quá dài
+      ellipsis: true,
       width: '30%',
-      ...getColumnSearchProps('diaChiFormatted', 'Địa Chỉ'), // Tìm kiếm trên địa chỉ đã format
+      ...getColumnSearchProps('diaChiFormatted', 'Địa Chỉ'),
       render: (text) => text !== 'Chưa cập nhật' 
             ? <Space><EnvironmentOutlined /> {text}</Space> 
             : <Tag>Chưa cập nhật</Tag>
     },
-    // { // Ví dụ thêm cột trạng thái (nếu có)
-    //   title: "Trạng thái",
-    //   dataIndex: "status", // Giả sử có trường status: 'active', 'inactive'
-    //   key: "status",
-    //   width: 120,
-    //   align: 'center',
-    //   filters: [
-    //     { text: 'Active', value: 'active' },
-    //     { text: 'Inactive', value: 'inactive' },
-    //   ],
-    //   onFilter: (value, record) => record.status === value,
-    //   render: (status) => (
-    //     <Tag color={status === 'active' ? 'green' : 'red'}>
-    //       {status ? status.toUpperCase() : 'N/A'}
-    //     </Tag>
-    //   ),
-    // },
     {
       title: "Hành Động",
       key: "actions",

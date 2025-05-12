@@ -111,9 +111,3 @@
 .editUserModal :global(.ant-modal-content) {
   padding: 24px !important;
 }
-
-/* .ant-modal-root .ant-modal .ant-modal-body,
-.ant-modal .ant-modal-body,
-:where(.css-dev-only-do-not-override-apn68).ant-modal .ant-modal-body {
-  padding: 5px !important;
-} */

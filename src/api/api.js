@@ -40,13 +40,13 @@ const apiService = {
   updateCartQuantity: (productId, variantColor, quantity) => apiInstance.put("/cart/update", { productId, variantColor, quantity }),
   removeProductFromCart: (productId, variantColor) => apiInstance.delete("/cart/delete", { data: { productId, variantColor } }),
   clearCart: () => apiInstance.delete("/cart/clear"),
-
-
+  
+  
   // **Comment and Rating APIs**
   addReview: (productId, userId, stars, text) => apiInstance.post(`/product/${productId}/review`, {productId, userId, stars, text}),
   addComment: (productId, userId, text, rating) => apiInstance.post(`/comments`, { productId, userId, text, rating }),
   getComments: (productId) => apiInstance.get(`/comments/${productId}`),
-
+  
   // **User APIs**
   registerUser: (newUser) => apiInstance.post("/register", newUser),
   loginUser: (user) => apiInstance.post("/login", user),
@@ -56,20 +56,20 @@ const apiService = {
   getProducts: () => apiInstance.get("/product"),
   updateUserProfile: (userId, userData) => {
     return apiInstance.put("/profile", {userId, userData})}, // Chỉnh sửa thông tin cá nhân
-  changePassword: (oldPassword, newPassword) => apiInstance.put("/change-password", { oldPassword, newPassword }),
-
-  // **Product APIs**//
-  getProductById: (productId) => apiInstance.get(`/product/${productId}`),
-  getRelatedProducts: (productId) => apiInstance.get(`/product/${productId}/related`),
-  getAllCategories: () => apiInstance.get("/product/categories"),
-  getAllBrands: () => apiInstance.get("/product/brands"),
-  addBrand: (brand) => apiInstance.post("/product/brands", { brand }),
-  addCategory: (category) => apiInstance.post("/product/categories", { category }),
+    changePassword: (oldPassword, newPassword) => apiInstance.put("/change-password", { oldPassword, newPassword }),
+    
+    // **Product APIs**//
+    getProductById: (productId) => apiInstance.get(`/product/${productId}`),
+    getRelatedProducts: (productId) => apiInstance.get(`/product/${productId}/related`),
+    getAllCategories: () => apiInstance.get("/product/categories"),
+    getAllBrands: () => apiInstance.get("/product/brands"),
+    addBrand: (brand) => apiInstance.post("/product/brands", { brand }),
+    addCategory: (category) => apiInstance.post("/product/categories", { category }),
   updateBrand: (brandId, brandData) => apiInstance.put(`/product/brands/${brandId}`, brandData),
   deleteBrand: (brandId) => apiInstance.delete(`/product/brands/${brandId}`),
   updateCategory: (categoryId, categoryData) => apiInstance.put(`/product/categories/${categoryId}`, categoryData),
   deleteCategory: (categoryId) => apiInstance.delete(`/product/categories/${categoryId}`),
-
+  
   // **Order APIs** 
   createOrder: (orderData) => apiInstance.post("/orders", orderData),
   getUserOrders: (userId) => apiInstance.get(`/orders/${userId}`),
@@ -78,6 +78,7 @@ const apiService = {
   deleteOrder: (orderId) =>
     apiInstance.delete(`/orders/${orderId}`),
   cancelOrder: (orderId) => apiInstance.patch(`/orders/${orderId}`), 
+  createPayment: (orderData) => apiInstance.post("/orders/vnpay/create-payment", orderData),
 
   // **Admin APIs**
   getAdminDashboard: () => apiInstance.get("/admin/dashboard"),

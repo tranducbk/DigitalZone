@@ -93,11 +93,30 @@ const EditBrand = ({ brand, setModalChild, handleRefresh }) => {
 
                     <Col xs={24} sm={8}>
                         <Form.Item label="Xem trước logo">
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '140px', height: '140px', border: '1px dashed #d9d9d9', borderRadius: '8px', padding: '5px' }}>
+                            <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'center', 
+                                alignItems: 'center', 
+                                width: '140px', 
+                                height: '140px', 
+                                border: '1px dashed #d9d9d9', 
+                                borderRadius: '8px', 
+                                padding: '5px',
+                                backgroundColor: '#fafafa'
+                            }}>
                                 {brandImage ? (
                                     <Image
-                                        style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                                        style={{ 
+                                            maxHeight: '100%', 
+                                            maxWidth: '100%', 
+                                            objectFit: 'contain' 
+                                        }}
                                         src={brandImage}
+                                        fallback="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                                        onError={(e) => {
+                                            e.target.src = '/path/to/default-image.png';
+                                            message.error('Không thể tải ảnh thương hiệu');
+                                        }}
                                     />
                                 ) : (
                                     <span style={{ color: '#bfbfbf' }}>Xem trước</span>

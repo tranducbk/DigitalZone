@@ -115,7 +115,7 @@ const LoginPage = () => {
             if (error.response && error.response.data && error.response.data.message) {
                  if (error.response.data.message === "User not found") {
                      form.setFields([{ name: 'phonenumber', errors: ['Số điện thoại chưa được đăng ký!'] }]);
-                 } else if (error.response.data.message === "Invalid password") {
+                 } else if (error.response.data.message === "Sai mật khẩu! Vui lòng thử lại") {
                      form.setFields([{ name: 'password', errors: ['Mật khẩu không chính xác!'] }]);
                  } else {
                      message.error(error.response.data.message); // Lỗi chung khác

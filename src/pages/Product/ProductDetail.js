@@ -54,6 +54,17 @@ export default function ProductDetail() {
         }
     };
 
+    const reloadProduct = async () => {
+        try {
+            const response = await apiService.getProductById(productId);
+            if (response.data && response.data.product) {
+                setProduct(response.data.product);
+            }
+        } catch (err) {
+            // Có thể xử lý lỗi nếu muốn
+        }
+    };
+
     useEffect(() => {
         async function fetchProduct() {
             try {
@@ -113,7 +124,8 @@ export default function ProductDetail() {
             <div ref={popupRef}></div>
             <CommentAndRating 
                 product={product} 
-                onOpenPopup={openPopup} 
+                onOpenPopup={openPopup}
+                onRated={reloadProduct}
             />
             {isPopupOpen  && (
             <div>

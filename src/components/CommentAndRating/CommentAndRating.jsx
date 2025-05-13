@@ -6,7 +6,7 @@ import styles from './CommentAndRating.module.css';
 
 const { TextArea } = Input;
 
-const CommentAndRating = ({ product, onOpenPopup }) => {
+const CommentAndRating = ({ product, onOpenPopup, onRated }) => {
     const [form] = Form.useForm();
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -70,6 +70,9 @@ const CommentAndRating = ({ product, onOpenPopup }) => {
                 message.success('Đánh giá thành công!');
                 form.resetFields();
                 fetchComments();
+                if (typeof onRated === 'function') {
+                    onRated();
+                }
             } else {
                 throw new Error('Lỗi khi gửi đánh giá');
             }

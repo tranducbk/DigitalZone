@@ -236,7 +236,7 @@ export default function CartPage() {
             })),
             totalAmount: totalAmount,
             paymentMethod: paymentMethodType,
-            paymentStatus: "Pending",
+            paymentStatus: paymentMethodType === "Cash on Delivery" ? "Pending" : "Completed" ,
         };
 
         setOrderDataForPayment(orderData);

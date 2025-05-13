@@ -174,6 +174,11 @@ const AddProduct = ({ closeModal, onProductAdded }) => {
 
   const handleAddBrand = async () => {
     try {
+      if (!newBrand.name.trim()) {
+        message.error("Vui lòng nhập tên thương hiệu!");
+        return;
+      }
+
       const response = await apiService.addBrand(newBrand);
       setBrandsList([...brandsList, response.data]);
       form.setFieldsValue({ brand: response.data.name });
@@ -185,7 +190,7 @@ const AddProduct = ({ closeModal, onProductAdded }) => {
   };
 
   return (
-    <div style={{ maxHeight: '80vh', overflowY: 'auto', padding: '0 15px 15px 0' }}>
+    <div style={{ overflowY: 'auto', padding: '0 15px 15px 0' }}>
       <Form
         form={form}
         layout="vertical"
@@ -268,10 +273,10 @@ const AddProduct = ({ closeModal, onProductAdded }) => {
                 placeholder="Chọn thương hiệu"
                 loading={loadingBrands}
                 showSearch
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  (option?.children?.props?.children[1] ?? '').toLowerCase().includes(input.toLowerCase())
-                }
+                filterOption={(input, option) => {
+                  const brandName = option?.children?.props?.children[1] || '';
+                  return brandName.includes(input);
+                }}
                 allowClear
                 dropdownRender={(menu) => (
                   <>
@@ -288,8 +293,20 @@ const AddProduct = ({ closeModal, onProductAdded }) => {
                 {brandsList.map((brandObj) => (
                   <Select.Option key={brandObj._id} value={brandObj.name}>
                     <Space>
-                        {brandObj.image && <Image src={brandObj.image} width={20} height={20} preview={false} style={{ objectFit: 'contain' }} fallback="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"/>}
-                        {brandObj.name}
+                      {brandObj.image && (
+                        <Image 
+                          src={brandObj.image} 
+                          width={20} 
+                          height={20} 
+                          preview={false} 
+                          style={{ objectFit: 'contain' }} 
+                          fallback="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                          onError={(e) => {
+                            e.target.src = '/path/to/default-image.png';
+                          }}
+                        />
+                      )}
+                      {brandObj.name}
                     </Space>
                   </Select.Option>
                 ))}
@@ -457,6 +474,20 @@ const AddProduct = ({ closeModal, onProductAdded }) => {
           value={newBrand.image}
           onChange={(e) => setNewBrand({ ...newBrand, image: e.target.value })}
         />
+        {newBrand.image && (
+          <div style={{ marginTop: 16, textAlign: 'center' }}>
+            <Image
+              src={newBrand.image}
+              width={100}
+              height={100}
+              style={{ objectFit: 'contain' }}
+              fallback="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+              onError={(e) => {
+                e.target.src = '/path/to/default-image.png';
+              }}
+            />
+          </div>
+        )}
       </Modal>
     </div>
   );

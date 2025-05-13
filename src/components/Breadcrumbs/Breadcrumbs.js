@@ -27,6 +27,17 @@ function Breadcrumbs({ product, category, brand }) {
     }
   };
 
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    // Giữ nguyên chữ hoa nếu là tên thương hiệu đặc biệt
+    const specialBrands = ['LG', 'TCL', 'SAMSUNG', 'APPLE'];
+    if (specialBrands.includes(string.toUpperCase())) {
+        return string.toUpperCase();
+    }
+    // Các thương hiệu khác thì viết hoa chữ đầu
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  };
+
   const categoryPath = getCategoryPath(category);
 
   return (
@@ -45,7 +56,7 @@ function Breadcrumbs({ product, category, brand }) {
             <div className="breadcrumbs-block">
               <FontAwesomeIcon icon={faChevronRight} />
               <Link to={`/${categoryPath}/${encodeURIComponent(brand)}`}>
-                {brand}
+                {capitalizeFirstLetter(brand)}
               </Link>
             </div>
           )}
@@ -53,7 +64,7 @@ function Breadcrumbs({ product, category, brand }) {
             <div className="breadcrumbs-block">
               <FontAwesomeIcon icon={faChevronRight} />
               <Link to={`/product/${product.id}`}>
-                {product.name}
+                {capitalizeFirstLetter(product.name)}
               </Link>
             </div>
           )}

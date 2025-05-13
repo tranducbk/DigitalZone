@@ -23,6 +23,15 @@ function Category(props) {
         const response = await apiService.getProducts();
         const products = response.data.products || [];
         setProducts(products);
+
+        // Lấy tất cả ảnh thương hiệu từ tất cả sản phẩm
+        const images = {};
+        products.forEach(product => {
+          if (product.brand && product.brand.image) {
+            images[product.brand.name] = product.brand.image;
+          }
+        });
+        setBrandImages(images);
       } catch (error) {
         console.error('Lỗi khi lấy danh sách sản phẩm:', error);
       }
@@ -43,7 +52,7 @@ function Category(props) {
   const handleBrandFilter = (brand) => {
     setProductBrand(brand);
     const categoryPath = getCategoryPath(category);
-    navigate(`${categoryPath}/${brand.toLowerCase()}`);
+    navigate(`${categoryPath}/${encodeURIComponent(brand)}`); // Sử dụng encodeURIComponent để xử lý tên thương hiệu
   };
 
   const getCategoryPath = (category) => {
@@ -56,7 +65,7 @@ function Category(props) {
       'Phụ Kiện': '/phụ-kiện',
       'Tai Nghe': '/tai-nghe'
     };
-    return categoryMap[category] || `/${category.toLowerCase()}`;
+    return categoryMap[category] || `/${category.toLowerCase().replace(/\s+/g, '-')}`;
   };
 
   const handleSortClick = (sortType) => {
@@ -69,30 +78,38 @@ function Category(props) {
 
   useEffect(() => {
     let filteredByCategory = products.filter(
-      (product) => product.category.toLowerCase().trim() === category.toLowerCase().trim()
+        (product) => product.category.toLowerCase().trim() === category.toLowerCase().trim()
     );
-  
+
     if (brandName) {
-      filteredByCategory = filteredByCategory.filter(
-        (item) => item.brand.name.toLowerCase() === brandName.toLowerCase()
-      );
-      setProductBrand(brandName);
+        const decodedBrandName = decodeURIComponent(brandName);
+        filteredByCategory = filteredByCategory.filter(
+            (item) => item.brand && item.brand.name === decodedBrandName
+        );
+        setProductBrand(decodedBrandName);
     }
-  
+
     setFilteredProducts(filteredByCategory);
-  
+
+    // Lấy danh sách thương hiệu hợp lệ
     const brands = Array.from(
-      new Set(filteredByCategory.map((product) => product.brand.name.toLowerCase()))
-    ).map((brand) => brand.charAt(0).toUpperCase() + brand.slice(1)); 
+        new Set(
+            filteredByCategory
+                .filter(product => product.brand && product.brand.name)
+                .map(product => product.brand.name)
+        )
+    );
     setBrandList(brands);
 
+    // Lấy ảnh thương hiệu hợp lệ
     const images = {};
     filteredByCategory.forEach(product => {
-      if (product.brand && product.brand.image) {
-        images[product.brand.name] = product.brand.image;
-      }
+        if (product.brand && product.brand.name && product.brand.image) {
+            images[product.brand.name] = product.brand.image;
+        }
     });
     setBrandImages(images);
+
   }, [products, category, brandName]);
 
   useEffect(() => {
@@ -134,7 +151,7 @@ function Category(props) {
   
     setFilteredProducts(filteredProducts);
   }, [products, productBrand, category, activeFilter]);
-  
+
   return (
     <div className='category-container'>
       <Breadcrumbs category={props.category} brand={brandName} />
@@ -147,17 +164,21 @@ function Category(props) {
           {brandList.map((brand, index) => (
             <Link
               key={index}
-              to={`${getCategoryPath(props.category)}/${brand.toLowerCase()}`}
-              className={`list-brand-item ${brand.toLowerCase() === productBrand.toLowerCase() ? 'active' : ''}`}
+              to={`${getCategoryPath(props.category)}/${encodeURIComponent(brand)}`}
+              className={`list-brand-item ${brand === productBrand ? 'active' : ''}`}
               onClick={() => handleBrandFilter(brand)}
             >
               <div
-                className={`brand-img-container ${brand.toLowerCase() === productBrand.toLowerCase() ? 'active-brand-container' : ''}`}
+                className={`brand-img-container ${brand === productBrand ? 'active-brand-container' : ''}`}
               >
                 <img
                   src={brandImages[brand] || '/path/to/default-image.png'}
                   alt={brand}
                   className="brand-img"
+                  onError={(e) => {
+                    e.target.src = '/path/to/default-image.png';
+                    console.log('Lỗi tải ảnh cho thương hiệu:', brand);
+                  }}
                 />
               </div>
             </Link>

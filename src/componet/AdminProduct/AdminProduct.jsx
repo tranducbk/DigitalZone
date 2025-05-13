@@ -210,7 +210,6 @@ const AdminProduct = () => {
           onProductUpdated={() => { 
             closeModal();
             handleRefresh(); 
-            message.success("Sản phẩm đã được cập nhật!");
           }}
         />
       );

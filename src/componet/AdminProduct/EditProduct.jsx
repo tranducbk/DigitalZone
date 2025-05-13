@@ -185,7 +185,7 @@ const EditProduct = ({ product, closeModal, onProductUpdated }) => {
   };
 
   return (
-    <div style={{ maxHeight: '80vh', overflowY: 'auto', paddingRight: '15px' }}>
+    <div style={{ overflowY: 'auto', paddingRight: '15px' }}>
       <Form
         form={form}
         layout="vertical"
@@ -251,20 +251,27 @@ const EditProduct = ({ product, closeModal, onProductUpdated }) => {
               rules={[{ required: true, message: "Vui lòng chọn thương hiệu!" }]}
             >
               <Select
-                placeholder="Select a person"
+                placeholder="Chọn thương hiệu"
                 showSearch
                 filterOption={(input, option) => {
-                  var a;
-                  return (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                  const brandName = option?.children?.props?.children[1] || '';
+                  return brandName.includes(input);
                 }}
               >
-                {brandsList.filter((brand, index, self) =>
-                  index === self.findIndex((t) => t.name === brand.name)
-                ).map((brand) => (
-                  <Select.Option key={brand._id} value={brand.name}>
+                {brandsList.map((brandObj) => (
+                  <Select.Option key={brandObj._id} value={brandObj.name}>
                     <Space>
-                      {brand.image && <Image src={brand.image} width={20} height={20} preview={false} style={{ objectFit: 'contain' }} />}
-                      {brand.name}
+                      {brandObj.image && (
+                        <Image 
+                          src={brandObj.image} 
+                          width={20} 
+                          height={20} 
+                          preview={false} 
+                          style={{ objectFit: 'contain' }} 
+                          fallback="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                        />
+                      )}
+                      {brandObj.name}
                     </Space>
                   </Select.Option>
                 ))}

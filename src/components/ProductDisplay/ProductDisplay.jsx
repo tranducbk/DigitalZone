@@ -92,7 +92,7 @@ function ProductDisplay(props) {
                             <a href="#reviews-section" className="a-review">
                                 <ProductRating rating={product.rating} />
                                 <span>{product.rating.toFixed(2)}</span>
-                                <span>&nbsp;({totalRatings} đánh giá)</span>
+                                <span>&nbsp;({totalRatings}Đánh giá)</span>
                             </a>
                         </div>
                     </div>
